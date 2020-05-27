@@ -88,11 +88,16 @@ bool
 MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocateCacheEntryCount, uintptr_t incrementCacheEntryCount)
 {
 	MM_GCExtensionsBase *ext = env->getExtensions();
+
+	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+	omrtty_printf("_totalAllocatedEntryCount %u\n",_totalAllocatedEntryCount);
 	
 	/* 0 has special meaning of 'do not change' */
 	if (0 == allocateCacheEntryCount) {
 		allocateCacheEntryCount = _totalAllocatedEntryCount;
 	}
+
+
 	if (0 != incrementCacheEntryCount) {
 		 _incrementEntryCount = incrementCacheEntryCount;
 	}
