@@ -117,15 +117,16 @@ MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allo
 	/*
 	Print only when called by collectorExpandeds
 	*/
-	if(rightCaller==true){
-		ext->_sizeExpandedBy_collectorExpanded=ext->_sizeExpandedBy_collectorExpanded+_incrementEntryCount*cacheSize;
-		omrtty_printf("_tag_collectorExpanded  CollectorExpanded :%u  Increase by :%u\n",ext->_sizeExpandedBy_collectorExpanded,_incrementEntryCount*cacheSize);
-	}
+
 
 		
 	if ( allocateCacheEntryCount > _totalAllocatedEntryCount) {
 		/* Increase cacheEntries by incrementEntryCount */
-		bool temp=appendCacheEntries(env, _incrementEntryCount);		
+		bool temp=appendCacheEntries(env, _incrementEntryCount);	
+		if(rightCaller==true && temp==true){
+			ext->_sizeExpandedBy_collectorExpanded=ext->_sizeExpandedBy_collectorExpanded+_incrementEntryCount*cacheSize;
+			omrtty_printf("_tag_collectorExpanded  CollectorExpanded :%u  Increase by :%u\n",ext->_sizeExpandedBy_collectorExpanded,_incrementEntryCount*cacheSize);
+		}	
 		omrtty_printf("_tag_totalAllocatedEntryCount(bytes) : %u\t _incrementEntryCount : %u\t size: %u\n",_totalAllocatedEntryCount*cacheSize,_incrementEntryCount*cacheSize,cacheSize);
 		return temp;
 	}
