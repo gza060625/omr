@@ -144,9 +144,10 @@ public:
 	 * @param env[in] A GC thread
 	 * @param allocatedCacheEntryCount[in] The number of cache entries which this list should be resized to contain
 	 * @param incrementCacheEntryCount[in] increment increase count
+	 * @param righCaller
 	 * @return true if resize success
 	 */
-	bool resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocatedCacheEntryCount, uintptr_t incrementCacheEntryCount);
+	bool resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocatedCacheEntryCount, uintptr_t incrementCacheEntryCount,bool righCaller=false);
 
 	/**
 	 * Remove all heap allocated chunks from chunks list

@@ -85,12 +85,12 @@ MM_CopyScanCacheList::tearDown(MM_EnvironmentBase *env)
 }
 
 bool
-MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocateCacheEntryCount, uintptr_t incrementCacheEntryCount)
+MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocateCacheEntryCount, uintptr_t incrementCacheEntryCount,bool rightCaller)
 {
+	unsigned long cacheSize=sizeof(MM_CopyScanCacheStandard);
 	MM_GCExtensionsBase *ext = env->getExtensions();
 
-	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
-	omrtty_printf("_totalAllocatedEntryCount %u\n",_totalAllocatedEntryCount);
+	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());	
 	
 	/* 0 has special meaning of 'do not change' */
 	if (0 == allocateCacheEntryCount) {
@@ -113,12 +113,23 @@ MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allo
 			return true;
 		}
 	}
-	
-	if ( allocateCacheEntryCount > _totalAllocatedEntryCount) {
-		/* Increase cacheEntries by incrementEntryCount */
-		return appendCacheEntries(env, _incrementEntryCount);
+
+	/*
+	Print only when called by collectorExpandeds
+	*/
+	if(rightCaller==true){
+		ext->_sizeExpandedBy_collectorExpanded=ext->_sizeExpandedBy_collectorExpanded+_incrementEntryCount*cacheSize;
+		omrtty_printf("_tag_collectorExpanded  CollectorExpanded :%u  Increase by :%u\n",ext->_sizeExpandedBy_collectorExpanded,_incrementEntryCount*cacheSize);
 	}
 
+		
+	if ( allocateCacheEntryCount > _totalAllocatedEntryCount) {
+		/* Increase cacheEntries by incrementEntryCount */
+		bool temp=appendCacheEntries(env, _incrementEntryCount);		
+		omrtty_printf("_tag_totalAllocatedEntryCount(bytes) : %u\t _incrementEntryCount : %u\t size: %u\n",_totalAllocatedEntryCount*cacheSize,_incrementEntryCount*cacheSize,cacheSize);
+		return temp;
+	}
+	omrtty_printf("_tag_totalAllocatedEntryCount(bytes) : %u\t _incrementEntryCount : %u\t size: %u\n",_totalAllocatedEntryCount*cacheSize,_incrementEntryCount*cacheSize,cacheSize);
 	/* downsizing is non-trivial with current list/chunk implementation since
 	 * the free caches are scattered across the chunks and cross reference themselves */
 	

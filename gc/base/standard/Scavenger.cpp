@@ -4254,7 +4254,7 @@ MM_Scavenger::collectorExpanded(MM_EnvironmentBase *env, MM_MemorySubSpace *subS
 		uintptr_t totalActiveCacheCount = calculateMaxCacheCount(_extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW));
 
 		/* TODO: can fail? */
-		_scavengeCacheFreeList.resizeCacheEntries(env, totalActiveCacheCount, 0);
+		_scavengeCacheFreeList.resizeCacheEntries(env, totalActiveCacheCount, 0,true);
 	}
 }
 
