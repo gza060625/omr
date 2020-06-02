@@ -4044,12 +4044,18 @@ MM_Scavenger::masterThreadGarbageCollect(MM_EnvironmentBase *envBase, MM_Allocat
 				_activeSubSpace->poisonEvacuateSpace();
 			}
 
-			// uintptr_t nurserySizeBefore = _extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW);
+			Assert_MM_true(_extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW) == _activeSubSpace->getActiveMemorySize(MEMORY_TYPE_NEW));
+			uintptr_t nurserySizeBefore = _activeSubSpace->getActiveMemorySize(MEMORY_TYPE_NEW);
 			/* Build free list in evacuate profile. Perform resize. */
 			_activeSubSpace->masterTeardownForSuccessfulGC(env);
 
-			// uintptr_t nurserySizeAfter = _extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW);
+			uintptr_t nurserySizeAfter = _activeSubSpace->getActiveMemorySize(MEMORY_TYPE_NEW);
+			Assert_MM_true(_extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW) == _activeSubSpace->getActiveMemorySize(MEMORY_TYPE_NEW));
 
+			if(nurserySizeAfter > nurserySizeBefore){
+				uintptr_t totalActiveCacheCount = calculateMaxCacheCount(_extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW));
+				_scavengeCacheFreeList.resizeCacheEntries(env, totalActiveCacheCount, 0,true);
+			}
 
 
 			/* Defer to collector language interface */
