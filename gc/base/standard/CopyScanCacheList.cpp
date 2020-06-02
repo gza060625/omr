@@ -87,7 +87,7 @@ MM_CopyScanCacheList::tearDown(MM_EnvironmentBase *env)
 bool
 MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocateCacheEntryCount, uintptr_t incrementCacheEntryCount,bool rightCaller)
 {
-	unsigned long cacheSize=sizeof(MM_CopyScanCacheStandard);
+	// unsigned long cacheSize=sizeof(MM_CopyScanCacheStandard);
 	MM_GCExtensionsBase *ext = env->getExtensions();
 
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());	
@@ -124,13 +124,13 @@ MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allo
 		/* Increase cacheEntries by incrementEntryCount */
 		bool temp=appendCacheEntries(env, _incrementEntryCount);	
 		if(rightCaller==true && temp==true){
-			ext->_sizeExpandedBy_collectorExpanded=ext->_sizeExpandedBy_collectorExpanded+_incrementEntryCount*cacheSize;
-			omrtty_printf("_tag_collectorExpanded  CollectorExpanded :%u  Increase by :%u\n",ext->_sizeExpandedBy_collectorExpanded,_incrementEntryCount*cacheSize);
+			ext->_sizeExpandedBy_collectorExpanded=ext->_sizeExpandedBy_collectorExpanded+_incrementEntryCount;
+			omrtty_printf("_tag_Successful\t CollectorExpanded :%u  _incrementEntryCount by :%u\n",ext->_sizeExpandedBy_collectorExpanded,_incrementEntryCount);
 		}	
-		omrtty_printf("_tag_totalAllocatedEntryCount(bytes) : %u\t _incrementEntryCount : %u\t size: %u\n",_totalAllocatedEntryCount*cacheSize,_incrementEntryCount*cacheSize,cacheSize);
+		omrtty_printf("_tag_Updated\t totalAllocatedEntryCount: %u\t _incrementEntryCount : %u\n",_totalAllocatedEntryCount,_incrementEntryCount);
 		return temp;
 	}
-	omrtty_printf("_tag_totalAllocatedEntryCount(bytes) : %u\t _incrementEntryCount : %u\t size: %u\n",_totalAllocatedEntryCount*cacheSize,_incrementEntryCount*cacheSize,cacheSize);
+	omrtty_printf("_tag_NoChange\t totalAllocatedEntryCount: %u\t _incrementEntryCount : %u\n",_totalAllocatedEntryCount,_incrementEntryCount);
 	/* downsizing is non-trivial with current list/chunk implementation since
 	 * the free caches are scattered across the chunks and cross reference themselves */
 	

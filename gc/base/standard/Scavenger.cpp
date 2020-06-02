@@ -4022,6 +4022,8 @@ MM_Scavenger::masterThreadGarbageCollect(MM_EnvironmentBase *envBase, MM_Allocat
 	mergeIncrementGCStats(env, lastIncrement);
 	reportScavengeEnd(env, lastIncrement);
 
+	// unsigned long cacheSize=sizeof(MM_CopyScanCacheStandard);/
+
 	if (lastIncrement) {
 		/* defer to collector language interface */
 		_delegate.masterThreadGarbageCollect_scavengeComplete(env);
@@ -4042,8 +4044,13 @@ MM_Scavenger::masterThreadGarbageCollect(MM_EnvironmentBase *envBase, MM_Allocat
 				_activeSubSpace->poisonEvacuateSpace();
 			}
 
+			// uintptr_t nurserySizeBefore = _extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW);
 			/* Build free list in evacuate profile. Perform resize. */
 			_activeSubSpace->masterTeardownForSuccessfulGC(env);
+
+			// uintptr_t nurserySizeAfter = _extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW);
+
+
 
 			/* Defer to collector language interface */
 			_delegate.masterThreadGarbageCollect_scavengeSuccess(env);
@@ -4251,10 +4258,10 @@ MM_Scavenger::collectorExpanded(MM_EnvironmentBase *env, MM_MemorySubSpace *subS
 		env->_scavengerStats._tenureExpandedBytes += expandSize;
 		env->_scavengerStats._tenureExpandedTime += resizeStats->getLastExpandTime();
 
-		uintptr_t totalActiveCacheCount = calculateMaxCacheCount(_extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW));
+		// uintptr_t totalActiveCacheCount = calculateMaxCacheCount(_extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW));
 
-		/* TODO: can fail? */
-		_scavengeCacheFreeList.resizeCacheEntries(env, totalActiveCacheCount, 0,true);
+		// /* TODO: can fail? */
+		// _scavengeCacheFreeList.resizeCacheEntries(env, totalActiveCacheCount, 0,true);
 	}
 }
 
