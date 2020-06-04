@@ -3037,13 +3037,17 @@ MM_Scavenger::getFreeCache(MM_EnvironmentStandard *env)
 		uintptr_t out =_scavengeCacheFreeList.getAllocatedCacheCount();
 		omrtty_printf("_tag_out\t ThreadID: %3u\t AllocatedCacheCount: %5u\n",env->getSlaveID(),out);
 		uint64_t duration = omrtime_current_time_millis();
-
+		
+		uint64_t startTime = omrtime_current_time_millis();
 		omrthread_monitor_enter(_freeCacheMonitor);
 		uintptr_t in =_scavengeCacheFreeList.getAllocatedCacheCount();
 		omrtty_printf("_tag_in \t ThreadID: %3u\t AllocatedCacheCount: %5u\n",env->getSlaveID(),in);
 		bool result = _scavengeCacheFreeList.resizeCacheEntries(env, 1+_scavengeCacheFreeList.getAllocatedCacheCount(), 0);
 		omrthread_monitor_exit(_freeCacheMonitor);
+		uint64_t endTime = omrtime_current_time_millis();		
 		omrtty_printf("_tag_dif\t ThreadID: %3u\t Out: %5u\t In: %5u\n",env->getSlaveID(),out,in);
+		omrtty_printf("_tag_tim\t ThreadID: %3u\t Time: %5u\n",env->getSlaveID(),endTime-startTime);
+		
 		if (result) {
 			cache = _scavengeCacheFreeList.popCache(env);
 		}
