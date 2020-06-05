@@ -3033,12 +3033,34 @@ MM_Scavenger::getFreeCache(MM_EnvironmentStandard *env)
 
 	if (NULL == cache) {	
 		env->_scavengerStats._scanCacheOverflow = 1;
+
 		OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+		uintptr_t out =_scavengeCacheFreeList.getAllocatedCacheCount();
+		omrtty_printf("_tag_out\t ThreadID: %3u\t AllocatedCacheCount: %5u\n",env->getSlaveID(),out);
+
 		uint64_t duration = omrtime_current_time_millis();
 
-		omrthread_monitor_enter(_freeCacheMonitor);
-		bool result = _scavengeCacheFreeList.resizeCacheEntries(env, 1+_scavengeCacheFreeList.getAllocatedCacheCount(), 0);
+		uint64_t startTime = omrtime_current_time_millis();
+
+		omrthread_monitor_enter(_freeCacheMonitor);			
+		uintptr_t in =_scavengeCacheFreeList.getAllocatedCacheCount();
+		omrtty_printf("_tag_in \t ThreadID: %3u\t AllocatedCacheCount: %5u\n",env->getSlaveID(),in);
+
+		bool result=false;
+		if(NULL == _scavengeCacheFreeList.popCache(env)){
+			result = _scavengeCacheFreeList.resizeCacheEntries(env, 1+_scavengeCacheFreeList.getAllocatedCacheCount(), 0);
+			omrtty_printf("_tag_pop\t ThreadID: %3u\t True\n",env->getSlaveID());
+		}
+		else{
+			omrtty_printf("_tag_pop\t ThreadID: %3u\t False\n",env->getSlaveID());
+		}
+
 		omrthread_monitor_exit(_freeCacheMonitor);
+
+		uint64_t endTime = omrtime_current_time_millis();		
+		omrtty_printf("_tag_dif\t ThreadID: %3u\t Out: %5u\t In: %5u\n",env->getSlaveID(),out,in);
+		omrtty_printf("_tag_tim\t ThreadID: %3u\t Time: %5u\n",env->getSlaveID(),endTime-startTime);
+
 		if (result) {
 			cache = _scavengeCacheFreeList.popCache(env);
 		}
@@ -4251,10 +4273,10 @@ MM_Scavenger::collectorExpanded(MM_EnvironmentBase *env, MM_MemorySubSpace *subS
 		env->_scavengerStats._tenureExpandedBytes += expandSize;
 		env->_scavengerStats._tenureExpandedTime += resizeStats->getLastExpandTime();
 
-		uintptr_t totalActiveCacheCount = calculateMaxCacheCount(_extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW));
+		// uintptr_t totalActiveCacheCount = calculateMaxCacheCount(_extensions->heap->getActiveMemorySize(MEMORY_TYPE_NEW));
 
 		/* TODO: can fail? */
-		_scavengeCacheFreeList.resizeCacheEntries(env, totalActiveCacheCount, 0);
+		// _scavengeCacheFreeList.resizeCacheEntries(env, totalActiveCacheCount, 0);
 	}
 }
 

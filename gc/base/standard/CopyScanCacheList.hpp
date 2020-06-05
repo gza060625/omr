@@ -146,7 +146,7 @@ public:
 	 * @param incrementCacheEntryCount[in] increment increase count
 	 * @return true if resize success
 	 */
-	bool resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocatedCacheEntryCount, uintptr_t incrementCacheEntryCount);
+	bool resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocatedCacheEntryCount, uintptr_t incrementCacheEntryCount,bool righCaller=false);
 
 	/**
 	 * Remove all heap allocated chunks from chunks list

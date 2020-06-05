@@ -85,9 +85,11 @@ MM_CopyScanCacheList::tearDown(MM_EnvironmentBase *env)
 }
 
 bool
-MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocateCacheEntryCount, uintptr_t incrementCacheEntryCount)
+MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allocateCacheEntryCount, uintptr_t incrementCacheEntryCount,bool rightCaller)
 {
 	MM_GCExtensionsBase *ext = env->getExtensions();
+
+	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 	
 	/* 0 has special meaning of 'do not change' */
 	if (0 == allocateCacheEntryCount) {
@@ -111,8 +113,17 @@ MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allo
 	
 	if ( allocateCacheEntryCount > _totalAllocatedEntryCount) {
 		/* Increase cacheEntries by incrementEntryCount */
-		return appendCacheEntries(env, _incrementEntryCount);
+		// return appendCacheEntries(env, _incrementEntryCount);
+		bool temp=appendCacheEntries(env, _incrementEntryCount);	
+		if(rightCaller==true && temp==true){
+		// if(temp==true){
+			ext->_sizeExpandedBy_collectorExpanded=ext->_sizeExpandedBy_collectorExpanded+_incrementEntryCount;
+			omrtty_printf("_tag_Successful\t CollectorExpanded :%u\t _incrementEntryCount :%u\t allocateCacheEntryCount:%u\n",ext->_sizeExpandedBy_collectorExpanded,_incrementEntryCount,allocateCacheEntryCount);
+		}	
+		omrtty_printf("_tag_Updated\t totalAllocatedEntryCount: %u\t _incrementEntryCount :%u\t allocateCacheEntryCount:%u\n",_totalAllocatedEntryCount,_incrementEntryCount,allocateCacheEntryCount);
+		return temp;
 	}
+	omrtty_printf("_tag_NoChange\t totalAllocatedEntryCount: %u\t _incrementEntryCount :%u\t allocateCacheEntryCount:%u\n",_totalAllocatedEntryCount,_incrementEntryCount,allocateCacheEntryCount);
 
 	/* downsizing is non-trivial with current list/chunk implementation since
 	 * the free caches are scattered across the chunks and cross reference themselves */
