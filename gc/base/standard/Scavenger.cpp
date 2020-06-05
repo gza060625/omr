@@ -3047,7 +3047,8 @@ MM_Scavenger::getFreeCache(MM_EnvironmentStandard *env)
 		omrtty_printf("_tag_in \t ThreadID: %3u\t AllocatedCacheCount: %5u\n",env->getSlaveID(),in);
 
 		bool result=false;
-		if(NULL == _scavengeCacheFreeList.popCache(env)){
+		cache=_scavengeCacheFreeList.popCache(env);
+		if(NULL == cache){
 			result = _scavengeCacheFreeList.resizeCacheEntries(env, 1+_scavengeCacheFreeList.getAllocatedCacheCount(), 0);
 			omrtty_printf("_tag_pop\t ThreadID: %3u\t True\n",env->getSlaveID());
 		}
