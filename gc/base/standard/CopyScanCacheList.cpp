@@ -108,11 +108,23 @@ MM_CopyScanCacheList::resizeCacheEntries(MM_EnvironmentBase *env, uintptr_t allo
 			return true;
 		}
 	}
+	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 	
 	if ( allocateCacheEntryCount > _totalAllocatedEntryCount) {
 		/* Increase cacheEntries by incrementEntryCount */
-		return appendCacheEntries(env, _incrementEntryCount);
+		// return appendCacheEntries(env, _incrementEntryCount);
+		bool temp=appendCacheEntries(env, _incrementEntryCount);	
+		if(temp==true){
+			omrtty_printf("_tag_Success\t totalAllocatedEntryCount: %u \t allocateCacheEntryCount:%u\n",_totalAllocatedEntryCount,allocateCacheEntryCount);
+		}
+		else{
+			omrtty_printf("_tag_Attempt\t totalAllocatedEntryCount: %u \t allocateCacheEntryCount:%u\n",_totalAllocatedEntryCount,allocateCacheEntryCount);
+		}
+		return temp;
 	}
+
+	omrtty_printf("_tag_Failed \t totalAllocatedEntryCount: %u \t allocateCacheEntryCount:%u\n",_totalAllocatedEntryCount,allocateCacheEntryCount);
+
 
 	/* downsizing is non-trivial with current list/chunk implementation since
 	 * the free caches are scattered across the chunks and cross reference themselves */

@@ -219,6 +219,7 @@ protected:
 
 public:
 	bool _lazyCollectorInit; /**< Are we initializing without a collector? */
+	uintptr_t _sizeExpandedBy_collectorExpanded=0;
 
 	MM_CollectorLanguageInterface* collectorLanguageInterface;
 
