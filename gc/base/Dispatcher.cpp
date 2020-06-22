@@ -22,11 +22,115 @@
 
 #include "omrcfg.h"
 #include "omrcomp.h"
+#include "ModronAssertions.h"
+#include "ut_j9mm.h"
+
+#include "Collector.hpp"
+#include "CollectorLanguageInterfaceImpl.hpp"
+#include "EnvironmentBase.hpp"
+#include "GCExtensionsBase.hpp"
+#include "Heap.hpp"
+#include "Task.hpp"
 
 #include "Dispatcher.hpp"
 
-#include "EnvironmentBase.hpp"
-#include "Task.hpp"
+class MM_Dispatcher;
+
+typedef struct slaveThreadInfo {
+	OMR_VM *omrVM;
+	uintptr_t slaveID;
+	uintptr_t slaveFlags;
+	MM_Dispatcher *dispatcher;
+} slaveThreadInfo;
+
+#define SLAVE_INFO_FLAG_OK 1
+#define SLAVE_INFO_FLAG_FAILED 2
+
+#define MINIMUM_HEAP_PER_THREAD (2*1024*1024)
+
+uintptr_t
+dispatcher_thread_proc2(OMRPortLibrary* portLib, void *info)
+{
+	slaveThreadInfo *slaveInfo = (slaveThreadInfo *)info;
+	OMR_VM *omrVM = slaveInfo->omrVM;
+	OMR_VMThread *omrVMThread = NULL;
+	uintptr_t slaveID = 0;
+	MM_Dispatcher *dispatcher = slaveInfo->dispatcher;
+	MM_EnvironmentBase *env = NULL;
+	uintptr_t oldVMState = 0;
+
+	/* Cache values from the info before releasing it */
+	slaveID = slaveInfo->slaveID;
+
+	/* Attach the thread as a system daemon thread */
+	omrVMThread = MM_EnvironmentBase::attachVMThread(omrVM, "GC Slave", MM_EnvironmentBase::ATTACH_GC_DISPATCHER_THREAD);
+	if (NULL == omrVMThread) {
+		goto startup_failed;
+	}
+
+	env = MM_EnvironmentBase::getEnvironment(omrVMThread);
+	env->setSlaveID(slaveID);
+	/* Enviroment initialization specific for GC threads (after slave ID is set) */
+	env->initializeGCThread();
+
+	/* Signal that the thread was created succesfully */
+	slaveInfo->slaveFlags = SLAVE_INFO_FLAG_OK;
+
+	oldVMState = env->pushVMstate(OMRVMSTATE_GC_DISPATCHER_IDLE);
+
+	/* Begin running the thread */
+	if (env->isMasterThread()) {
+		env->setThreadType(GC_MASTER_THREAD);
+		dispatcher->masterEntryPoint(env);
+		env->setThreadType(GC_SLAVE_THREAD);
+	} else {
+		env->setThreadType(GC_SLAVE_THREAD);
+		dispatcher->slaveEntryPoint(env);
+	}
+
+	env->popVMstate(oldVMState);
+
+	/* Thread is terminating -- shut it down */
+	env->setSlaveID(0);
+	MM_EnvironmentBase::detachVMThread(omrVM, omrVMThread, MM_EnvironmentBase::ATTACH_GC_DISPATCHER_THREAD);
+	
+	omrthread_monitor_enter(dispatcher->_dispatcherMonitor);
+	dispatcher->_threadShutdownCount -= 1;
+	omrthread_monitor_notify(dispatcher->_dispatcherMonitor);
+	/* Terminate the thread */
+	omrthread_exit(dispatcher->_dispatcherMonitor);
+
+	Assert_MM_unreachable();
+	return 0;
+
+startup_failed:
+	slaveInfo->slaveFlags = SLAVE_INFO_FLAG_FAILED;
+
+	omrthread_monitor_enter(dispatcher->_dispatcherMonitor);
+	omrthread_monitor_notify_all(dispatcher->_dispatcherMonitor);
+	omrthread_exit(dispatcher->_dispatcherMonitor);
+
+	Assert_MM_unreachable();
+	return 0;
+}
+
+extern "C" {
+
+int J9THREAD_PROC
+dispatcher_thread_proc(void *info)
+{
+	OMR_VM *omrVM = ((slaveThreadInfo *)info)->omrVM;
+	MM_Dispatcher *dispatcher = ((slaveThreadInfo *)info)->dispatcher;
+	OMRPORT_ACCESS_FROM_OMRVM(omrVM);
+	uintptr_t rc;
+	omrsig_protect(dispatcher_thread_proc2, info,
+		dispatcher->getSignalHandler(), dispatcher->getSignalHandlerArg(),
+		OMRPORT_SIG_FLAG_SIGALLSYNC | OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION,
+		&rc);
+	return 0;
+}
+
+} /* extern "C" */
 
 MM_Dispatcher *
 MM_Dispatcher::newInstance(MM_EnvironmentBase *env)
@@ -477,7 +581,7 @@ MM_Dispatcher::setThreadInitializationComplete(MM_EnvironmentBase *env)
 	
 	/* Set the status of the thread to waiting and notify that the thread has started up */
 	omrthread_monitor_enter(_dispatcherMonitor);
-	_statusTable[slaveID] = MM_ParallelDispatcher::slave_status_waiting;
+	_statusTable[slaveID] = MM_Dispatcher::slave_status_waiting;
 	omrthread_monitor_notify_all(_dispatcherMonitor);
 	omrthread_monitor_exit(_dispatcherMonitor);
 }
