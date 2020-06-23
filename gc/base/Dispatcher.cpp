@@ -257,6 +257,7 @@ error_no_memory:
 // 	_task = task;
 // }
 
+
 void
 MM_Dispatcher::prepareThreadsForTask(MM_EnvironmentBase *env, MM_Task *task, uintptr_t threadCount)
 {
@@ -631,4 +632,17 @@ MM_Dispatcher::reinitAfterFork(MM_EnvironmentBase *env, uintptr_t newThreadCount
 	}
 
 	startUpThreads();
+}
+
+/**
+ * Let tasks run with reduced thread count.
+ * After the task is complete the thread count should be restored.
+ * Dispatcher may additionally adjust (reduce) the count.
+ */
+void
+MM_Dispatcher::setThreadCount(uintptr_t threadCount)
+{
+	Assert_MM_true(threadCount <= _threadCountMaximum);
+	Assert_MM_true(0 < threadCount);
+ 	_threadCount = threadCount;
 }
