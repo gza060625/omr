@@ -485,5 +485,5 @@ MM_Configuration::initializeNUMAManager(MM_EnvironmentBase* env)
 MM_Dispatcher *
 MM_Configuration::createDispatcher(MM_EnvironmentBase *env, omrsig_handler_fn handler, void* handler_arg, uintptr_t defaultOSStackSize)
 {
-	return MM_ParallelDispatcher::newInstance(env, handler, handler_arg, defaultOSStackSize);
+	return MM_Dispatcher::newInstance(env, handler, handler_arg, defaultOSStackSize);
 }
