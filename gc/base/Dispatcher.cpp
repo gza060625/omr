@@ -49,7 +49,7 @@ typedef struct slaveThreadInfo {
 #define MINIMUM_HEAP_PER_THREAD (2*1024*1024)
 
 uintptr_t
-dispatcher_thread_proc2(OMRPortLibrary* portLib, void *info)
+dispatcher_thread_proc2D(OMRPortLibrary* portLib, void *info)
 {
 	slaveThreadInfo *slaveInfo = (slaveThreadInfo *)info;
 	OMR_VM *omrVM = slaveInfo->omrVM;
@@ -117,13 +117,13 @@ startup_failed:
 extern "C" {
 
 int J9THREAD_PROC
-dispatcher_thread_proc(void *info)
+dispatcher_thread_procD(void *info)
 {
 	OMR_VM *omrVM = ((slaveThreadInfo *)info)->omrVM;
 	MM_Dispatcher *dispatcher = ((slaveThreadInfo *)info)->dispatcher;
 	OMRPORT_ACCESS_FROM_OMRVM(omrVM);
 	uintptr_t rc;
-	omrsig_protect(dispatcher_thread_proc2, info,
+	omrsig_protect(dispatcher_thread_proc2D, info,
 		dispatcher->getSignalHandler(), dispatcher->getSignalHandlerArg(),
 		OMRPORT_SIG_FLAG_SIGALLSYNC | OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION,
 		&rc);
@@ -201,7 +201,8 @@ MM_Dispatcher::kill(MM_EnvironmentBase *env)
 		_threadTable = NULL;
 	}
 
-	MM_Dispatcher::kill(env);
+	// MM_Dispatcher::kill(env);
+	env->getForge()->free(this);
 }
 
 // bool
@@ -385,7 +386,7 @@ MM_Dispatcher::startUpThreads()
 				_defaultOSStackSize,
 				getThreadPriority(),
 				0,
-				dispatcher_thread_proc,
+				dispatcher_thread_procD,
 				(void *)&slaveInfo,
 				J9THREAD_CATEGORY_SYSTEM_GC_THREAD);
 		if (threadForkResult != 0) {

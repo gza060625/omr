@@ -126,7 +126,7 @@ public:
 		_typeId = __FUNCTION__;
 	};
 	
-	friend class MM_Task;
+	// friend class MM_Task;
 public:
 
 	/*
@@ -201,7 +201,7 @@ public:
 	}
 
 	friend class MM_Task;
-	friend uintptr_t dispatcher_thread_proc2(OMRPortLibrary* portLib, void *info);
+	friend uintptr_t dispatcher_thread_proc2D(OMRPortLibrary* portLib, void *info);
 
 };
 
