@@ -180,7 +180,10 @@ public:
 
 	MM_Dispatcher(MM_EnvironmentBase *env, omrsig_handler_fn handler, void* handler_arg, uintptr_t defaultOSStackSize) :
 		// MM_Dispatcher(env),
-		_extensions(MM_GCExtensionsBase::getExtensions(env->getOmrVM()))
+		MM_BaseVirtual()
+		,_task(NULL)
+
+		,_extensions(MM_GCExtensionsBase::getExtensions(env->getOmrVM()))
 		,_threadShutdownCount(0)
 		,_threadTable(NULL)
 		,_statusTable(NULL)
