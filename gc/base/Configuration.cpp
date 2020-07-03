@@ -485,11 +485,7 @@ MM_Configuration::initializeNUMAManager(MM_EnvironmentBase* env)
 MM_Dispatcher *
 MM_Configuration::createDispatcher(MM_EnvironmentBase *env, omrsig_handler_fn handler, void* handler_arg, uintptr_t defaultOSStackSize)
 {
-<<<<<<< HEAD
 	return (MM_Dispatcher *)createParallelDispatcher(env, handler, handler_arg, defaultOSStackSize);
-=======
-	return  (MM_Dispatcher *)createParallelDispatcher(env, handler, handler_arg, defaultOSStackSize);
->>>>>>> Merging Dispatcher to ParallelDispatcher (1/2)
 }
 
 MM_ParallelDispatcher *
