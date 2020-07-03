@@ -40,6 +40,7 @@
 #include "GCExtensionsBase.hpp"
 
 class MM_EnvironmentBase;
+class MM_Dispatcher;
 
 class MM_ParallelDispatcher : public MM_Dispatcher
 {

@@ -536,6 +536,19 @@ MM_ParallelDispatcher::run(MM_EnvironmentBase *env, MM_Task *task, uintptr_t new
 	task->mainCleanup(env);
 }
 
+void
+MM_ParallelDispatcher::run(MM_EnvironmentBase *env, MM_Task *task, uintptr_t newThreadCount)
+{
+	uintptr_t activeThreads = recomputeActiveThreadCountForTask(env, task, newThreadCount);
+	task->masterSetup(env);
+	prepareThreadsForTask(env, task, activeThreads);
+	acceptTask(env);
+	task->run(env);
+	completeTask(env);
+	cleanupAfterTask(env);
+	task->masterCleanup(env);
+}
+
 /**
  * Return a value indicating the priority at which GC threads should be run.
  */
