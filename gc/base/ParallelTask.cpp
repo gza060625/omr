@@ -236,7 +236,11 @@ MM_ParallelTask::complete(MM_EnvironmentBase *env)
 	const char *id = UNIQUE_ID;
 
 	/* Update this worker thread's CPU time */
+<<<<<<< HEAD
 	if(!env->isMainThread()) {
+=======
+	if(!env->isMasterThread()) {
+>>>>>>> Replace slave with worker
 		env->_workerThreadCpuTimeNanos = omrthread_get_self_cpu_time(env->getOmrVMThread()->_os_thread);
 	}
 

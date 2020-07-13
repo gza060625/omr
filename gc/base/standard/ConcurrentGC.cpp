@@ -3509,7 +3509,11 @@ MM_ConcurrentGC::finalCleanCards(MM_EnvironmentBase *env)
  * A marked object which is not in a dirty card needs rescanning now for any references
  * to the nursery which will not have been traced by concurrent mark
  *
+<<<<<<< HEAD
  * This routine is called ConcurrentScanRememberedSetTask on main and any worker threads
+=======
+ * This routine is called ConcurrentScanRememberedSetTask on master and any worker threads
+>>>>>>> Replace slave with worker
  * during internalPreCollect().
  */
 void

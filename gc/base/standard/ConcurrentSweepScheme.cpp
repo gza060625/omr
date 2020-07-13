@@ -1408,15 +1408,24 @@ MM_ConcurrentSweepScheme::workThreadFindMinimumSizeFreeEntry(MM_EnvironmentBase 
 	/* Determine which pool is the most appropriate to sweep given required minimum free size */
 	memoryPool = memorySubSpace->getMemoryPool(minimumFreeSize);
 	if (NULL != memoryPool) {
+<<<<<<< HEAD
 		if(env->isMainThread()) {
 			/* Main thread: connect chunks until the correct entry is found or there are no more chunks to connect.
+=======
+		if(env->isMasterThread()) {
+			/* Master thread: connect chunks until the correct entry is found or there are no more chunks to connect.
+>>>>>>> Replace slave with worker
 			 * If an entry is found, set the task flag for worker termination to true
 			 */
 			task->_foundMinimumSizeFreeEntry = replenishPoolForAllocate(env, memoryPool, minimumFreeSize);
 			memoryPool->setLargestFreeEntry(getPoolState(memoryPool)->_largestFreeEntry);
 		} else {
 			/* Worker thread: keep finding and sweeping chunks until there are no more chunks to sweep or
+<<<<<<< HEAD
 			 * the main has found an entry of the correct size and set the task termination flag.
+=======
+			 * the master has found an entry of the correct size and set the task termination flag.
+>>>>>>> Replace slave with worker
 			 * Note: We might want to have a different flagging system that allows a worker to find the entry from
 			 * its per-chunk statistics.
 			 */

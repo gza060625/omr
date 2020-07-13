@@ -527,19 +527,6 @@ void
 MM_ParallelDispatcher::run(MM_EnvironmentBase *env, MM_Task *task, uintptr_t newThreadCount)
 {
 	uintptr_t activeThreads = recomputeActiveThreadCountForTask(env, task, newThreadCount);
-	task->mainSetup(env);
-	prepareThreadsForTask(env, task, activeThreads);
-	acceptTask(env);
-	task->run(env);
-	completeTask(env);
-	cleanupAfterTask(env);
-	task->mainCleanup(env);
-}
-
-void
-MM_ParallelDispatcher::run(MM_EnvironmentBase *env, MM_Task *task, uintptr_t newThreadCount)
-{
-	uintptr_t activeThreads = recomputeActiveThreadCountForTask(env, task, newThreadCount);
 	task->masterSetup(env);
 	prepareThreadsForTask(env, task, activeThreads);
 	acceptTask(env);
