@@ -3510,10 +3510,14 @@ MM_ConcurrentGC::finalCleanCards(MM_EnvironmentBase *env)
  * to the nursery which will not have been traced by concurrent mark
  *
 <<<<<<< HEAD
+<<<<<<< HEAD
  * This routine is called ConcurrentScanRememberedSetTask on main and any worker threads
 =======
  * This routine is called ConcurrentScanRememberedSetTask on master and any worker threads
 >>>>>>> Replace slave with worker
+=======
+ * This routine is called ConcurrentScanRememberedSetTask on main and any worker threads
+>>>>>>> Rename master to main gc
  * during internalPreCollect().
  */
 void

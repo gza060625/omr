@@ -303,13 +303,8 @@ MM_MainGCThread::garbageCollect(MM_EnvironmentBase *env, MM_AllocateDescription 
 			 * trigger a GC after we've shutdown the main thread.
 			 */
 			Assert_MM_true(0 == env->getWorkerID());
-<<<<<<< HEAD
 			_collector->preMainGCThreadInitialize(env);
 			_collector->mainThreadGarbageCollect(env, allocDescription);
-=======
-			_collector->preMasterGCThreadInitialize(env);
-			_collector->masterThreadGarbageCollect(env, allocDescription);
->>>>>>> Replace slave with worker
 
 			if (_runAsImplicit && _collector->isConcurrentWorkAvailable(env)) {
 				omrthread_monitor_enter(_collectorControlMutex);

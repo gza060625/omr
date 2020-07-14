@@ -91,11 +91,7 @@ public:
 private:
 protected:
 	virtual void workerEntryPoint(MM_EnvironmentBase *env);
-<<<<<<< HEAD
 	virtual void mainEntryPoint(MM_EnvironmentBase *env);
-=======
-	virtual void masterEntryPoint(MM_EnvironmentBase *env);
->>>>>>> Replace slave with worker
 
 	bool initialize(MM_EnvironmentBase *env);
 	
