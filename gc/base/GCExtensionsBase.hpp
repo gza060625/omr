@@ -799,6 +799,8 @@ public:
 
 	uintptr_t darkMatterSampleRate;/**< the weight of darkMatterSample for standard gc, default:32, if the weight = 0, disable darkMatterSampling */
 
+	bool touchHeapOnExpand;
+
 #if defined(OMR_GC_IDLE_HEAP_MANAGER)
 	uintptr_t idleMinimumFree;   /**< percentage of free heap to be retained as committed, default=0 for gencon, complete tenture free memory will be decommitted */
 	bool gcOnIdle; /**< Enables releasing free heap pages if true while systemGarbageCollect invoked with IDLE GC code, default is false */
@@ -1787,6 +1789,7 @@ public:
 		, referenceChainWalkerMarkMap(NULL)
 		, trackMutatorThreadCategory(false)
 		, darkMatterSampleRate(32)
+		, touchHeapOnExpand(false)
 #if defined(OMR_GC_IDLE_HEAP_MANAGER)
 		, idleMinimumFree(0)
 		, gcOnIdle(false)
