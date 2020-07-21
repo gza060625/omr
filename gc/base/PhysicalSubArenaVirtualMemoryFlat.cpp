@@ -116,6 +116,13 @@ MM_PhysicalSubArenaVirtualMemoryFlat::inflate(MM_EnvironmentBase *env)
 
 			void *lowAddress = _region->getLowAddress();
 			void *highAddress = _region->getHighAddress();
+			
+			if(true){
+				OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+				omrtty_printf("memset from %p to %p (%d)\n", lowAddress, highAddress, static_cast<char *>(highAddress) - static_cast<char *>(lowAddress));
+			}
+
+			memset(lowAddress, 0, static_cast<char *>(highAddress) - static_cast<char *>(lowAddress));
 
 			MM_MemorySubSpace *genericSubSpace = ((MM_MemorySubSpaceFlat *)_subSpace)->getChildSubSpace();
 			result = genericSubSpace->expanded(env, this, _region->getSize(), lowAddress, highAddress, false);
