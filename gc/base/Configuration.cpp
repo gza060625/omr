@@ -487,11 +487,3 @@ MM_Configuration::createParallelDispatcher(MM_EnvironmentBase *env, omrsig_handl
 {
 	return createParallelDispatcher(env, handler, handler_arg, defaultOSStackSize);
 }
-
-MM_ParallelDispatcher *
-MM_Configuration::createParallelDispatcher(MM_EnvironmentBase *env, omrsig_handler_fn handler, void* handler_arg, uintptr_t defaultOSStackSize)
-{
-	return MM_ParallelDispatcher::newInstance(env, handler, handler_arg, defaultOSStackSize);
-}
-
-

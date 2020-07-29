@@ -39,7 +39,6 @@
 #include "GCExtensionsBase.hpp"
 
 class MM_EnvironmentBase;
-class MM_Dispatcher;
 
 /**
  * @todo Provide define documentation

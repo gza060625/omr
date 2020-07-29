@@ -53,8 +53,6 @@ class MM_SegregatedAllocationTracker;
 class MM_Task;
 class MM_Validator;
 
-// class MM_GCExtensionsBase;
-
 /* Allocation color values -- also used in bit in Metronome -- see Metronome.hpp */
 #define GC_UNMARK	0
 #define GC_MARK		0x20
