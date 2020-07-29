@@ -73,7 +73,7 @@ private:
 #endif /* OMR_GC_MODRON_COMPACTION */
 
 protected:
-	MM_MarkingScheme *_markingScheme;
+	MM_MarkingScheme *_markingScheme;	
 	MM_ParallelSweepScheme *_sweepScheme;
 	MM_ParallelHeapWalker *_heapWalker;
 	MM_ParallelDispatcher *_dispatcher;
@@ -341,7 +341,7 @@ public:
 		, _markingScheme(NULL)
 		, _sweepScheme(NULL)
 		, _heapWalker(NULL)
-		, _dispatcher((MM_ParallelDispatcher *) _extensions->dispatcher)
+		, _dispatcher( _extensions->dispatcher)
 		, _cycleState()
 		, _collectionStatistics()
 		, _fixHeapForWalkCompleted(false)

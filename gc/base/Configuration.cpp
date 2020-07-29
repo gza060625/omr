@@ -482,10 +482,10 @@ MM_Configuration::initializeNUMAManager(MM_EnvironmentBase* env)
 	return env->getExtensions()->_numaManager.recacheNUMASupport(env);
 }
 
-MM_Dispatcher *
-MM_Configuration::createDispatcher(MM_EnvironmentBase *env, omrsig_handler_fn handler, void* handler_arg, uintptr_t defaultOSStackSize)
+MM_ParallelDispatcher *
+MM_Configuration::createParallelDispatcher(MM_EnvironmentBase *env, omrsig_handler_fn handler, void* handler_arg, uintptr_t defaultOSStackSize)
 {
-	return (MM_Dispatcher *)createParallelDispatcher(env, handler, handler_arg, defaultOSStackSize);
+	return createParallelDispatcher(env, handler, handler_arg, defaultOSStackSize);
 }
 
 MM_ParallelDispatcher *
@@ -493,3 +493,5 @@ MM_Configuration::createParallelDispatcher(MM_EnvironmentBase *env, omrsig_handl
 {
 	return MM_ParallelDispatcher::newInstance(env, handler, handler_arg, defaultOSStackSize);
 }
+
+

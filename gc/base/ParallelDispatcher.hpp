@@ -35,19 +35,30 @@
 #include "modronbase.h"
 
 #include "BaseVirtual.hpp"
-#include "Dispatcher.hpp"
 #include "EnvironmentBase.hpp"
 #include "GCExtensionsBase.hpp"
 
 class MM_EnvironmentBase;
 class MM_Dispatcher;
 
-class MM_ParallelDispatcher : public MM_Dispatcher
+/**
+ * @todo Provide define documentation
+ * @ingroup GC_Base_Core
+ */
+#define J9MODRON_HANDLE_NEXT_WORK_UNIT(envPtr) envPtr->_currentTask->handleNextWorkUnit(envPtr)
+
+/**
+ * @todo Provide class documentation
+ * @ingroup GC_Base_Core
+ */
+
+class MM_ParallelDispatcher : public MM_BaseVirtual
 {
 	/*
 	 * Data members
 	 */
 private:
+
 protected:
 	MM_GCExtensionsBase *_extensions;
 
@@ -139,23 +150,23 @@ public:
 	virtual void reinitAfterFork(MM_EnvironmentBase *env, uintptr_t newThreadCount);
 
 	MM_ParallelDispatcher(MM_EnvironmentBase *env, omrsig_handler_fn handler, void* handler_arg, uintptr_t defaultOSStackSize) :
-		MM_Dispatcher(env)
-		,_extensions(MM_GCExtensionsBase::getExtensions(env->getOmrVM()))
-		,_threadShutdownCount(0)
-		,_threadTable(NULL)
-		,_statusTable(NULL)
-		,_taskTable(NULL)
-		,_workerThreadMutex(NULL)
-		,_dispatcherMonitor(NULL)
-		,_synchronizeMutex(NULL)
-		,_workerThreadsReservedForGC(false)
-		,_inShutdown(false)
-		,_threadCountMaximum(1)
-		,_threadCount(1)
-		,_activeThreadCount(1)
-		,_handler(handler)
-		,_handler_arg(handler_arg)
-		,_defaultOSStackSize(defaultOSStackSize)
+	MM_BaseVirtual()
+	,_extensions(MM_GCExtensionsBase::getExtensions(env->getOmrVM()))
+	,_threadShutdownCount(0)
+	,_threadTable(NULL)
+	,_statusTable(NULL)
+	,_taskTable(NULL)
+	,_slaveThreadMutex(NULL)
+	,_dispatcherMonitor(NULL)
+	,_synchronizeMutex(NULL)
+	,_slaveThreadsReservedForGC(false)
+	,_inShutdown(false)
+	,_threadCountMaximum(1)
+	,_threadCount(1)
+	,_activeThreadCount(1)
+	,_handler(handler)
+	,_handler_arg(handler_arg)
+	,_defaultOSStackSize(defaultOSStackSize)
 	{
 		_typeId = __FUNCTION__;
 	}

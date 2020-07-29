@@ -39,7 +39,6 @@
 /* Macro to create an unique literal string identifier */ 
 #define UNIQUE_ID ((const char *)(OMR_GET_CALLSITE()))
 
-class MM_Dispatcher;
 class MM_EnvironmentBase;
 class MM_ParallelDispatcher;
 
@@ -163,14 +162,6 @@ public:
 		_typeId = __FUNCTION__;
 	};
 
-	MM_Task(MM_EnvironmentBase *env, MM_Dispatcher *dispatcher) :
-		MM_BaseVirtual(),
-		_dispatcher( ( MM_ParallelDispatcher* ) dispatcher),
-		_oldVMstate(0)
-	{
-		_typeId = __FUNCTION__;
-	};
-	
 	friend class MM_ParallelDispatcher;
 };
 

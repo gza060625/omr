@@ -39,7 +39,6 @@
 #include "Task.hpp"
 
 #include "ParallelDispatcher.hpp"
-#include "Dispatcher.hpp"
 
 typedef struct workerThreadInfo {
 	OMR_VM *omrVM;
@@ -544,6 +543,19 @@ MM_ParallelDispatcher::run(MM_EnvironmentBase *env, MM_Task *task, uintptr_t new
 >>>>>>> Merging Dispatcher to ParallelDispatcher (1/2)
 }
 
+void
+MM_ParallelDispatcher::run(MM_EnvironmentBase *env, MM_Task *task, uintptr_t newThreadCount)
+{
+	uintptr_t activeThreads = recomputeActiveThreadCountForTask(env, task, newThreadCount);
+	task->masterSetup(env);
+	prepareThreadsForTask(env, task, activeThreads);
+	acceptTask(env);
+	task->run(env);
+	completeTask(env);
+	cleanupAfterTask(env);
+	task->masterCleanup(env);
+}
+
 /**
  * Return a value indicating the priority at which GC threads should be run.
  */
@@ -551,7 +563,7 @@ uintptr_t
 MM_ParallelDispatcher::getThreadPriority()
 {
 	return J9THREAD_PRIORITY_NORMAL;
-}
+} 
 
 /**
  * Mark the worker thread as ready then notify everyone who is waiting

@@ -70,8 +70,8 @@ MM_MainGCThread::main_thread_proc(void *info)
 	OMR_VM *omrVM = extensions->getOmrVM();
 	OMRPORT_ACCESS_FROM_OMRVM(omrVM);
 	uintptr_t rc = 0;
-	omrsig_protect(main_thread_proc2, info,
-			((MM_ParallelDispatcher *)extensions->dispatcher)->getSignalHandler(), omrVM,
+	omrsig_protect(master_thread_proc2, info,
+			extensions->dispatcher->getSignalHandler(), omrVM,
 		OMRPORT_SIG_FLAG_SIGALLSYNC | OMRPORT_SIG_FLAG_MAY_CONTINUE_EXECUTION,
 		&rc);
 	return 0;
