@@ -35,13 +35,18 @@
 #include "modronbase.h"
 
 #include "BaseVirtual.hpp"
-#include "Dispatcher.hpp"
 #include "EnvironmentBase.hpp"
 #include "GCExtensionsBase.hpp"
 
 class MM_EnvironmentBase;
 
-class MM_ParallelDispatcher : public MM_Dispatcher
+/**
+ * @todo Provide define documentation
+ * @ingroup GC_Base_Core
+ */
+#define J9MODRON_HANDLE_NEXT_WORK_UNIT(envPtr) envPtr->_currentTask->handleNextWorkUnit(envPtr)
+
+class MM_ParallelDispatcher : public MM_BaseVirtual
 {
 	/*
 	 * Data members
@@ -138,7 +143,7 @@ public:
 	virtual void reinitAfterFork(MM_EnvironmentBase *env, uintptr_t newThreadCount);
 
 	MM_ParallelDispatcher(MM_EnvironmentBase *env, omrsig_handler_fn handler, void* handler_arg, uintptr_t defaultOSStackSize) :
-		MM_Dispatcher(env)
+		MM_BaseVirtual()
 		,_extensions(MM_GCExtensionsBase::getExtensions(env->getOmrVM()))
 		,_threadShutdownCount(0)
 		,_threadTable(NULL)
