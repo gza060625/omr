@@ -1064,6 +1064,15 @@ MM_VerboseHandlerOutput::outputStringConstantInfo(MM_EnvironmentBase *env, uintp
 }
 
 void
+MM_VerboseHandlerOutput::outputMonitorReferenceInfo(MM_EnvironmentBase *env, uintptr_t ident, uintptr_t candidates, uintptr_t cleared)
+{
+	MM_VerboseWriterChain* writer = _manager->getWriterChain();
+	if (0 != candidates) {
+		writer->formatAndOutput(env, ident, "<monitorreferences candidates=\"%zu\" cleared=\"%zu\"  />", candidates, cleared);
+	}
+}
+
+void
 verboseHandlerInitialized(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData)
 {
 	((MM_VerboseHandlerOutput*)userData)->handleInitialized(hook, eventNum, eventData);
