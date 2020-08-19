@@ -71,7 +71,7 @@ xmlns:vgc="http://www.ibm.com/j9/verbosegc">
 	<element name="finalization" type="vgc:finalization" />
 	<element name="ownableSynchronizers" type="vgc:ownableSynchronizers" />
 	<element name="stringconstants" type="vgc:stringconstants" />
-	<element name="monitorreferences" type="vgc:monitorreferences" />
+	<element name="monitor-references" type="vgc:monitor-references" />
 	<element name="classunload-info" type="vgc:classunload-info" />
 	<element name="warning" type="vgc:warning" />
 	<element name="remembered-set-cleared" type="vgc:remembered-set-cleared" />
@@ -479,7 +479,7 @@ xmlns:vgc="http://www.ibm.com/j9/verbosegc">
 		<attribute name="cleared" type="integer" use="required" />
 	</complexType>
 
-	<complexType name="monitorreferences">
+	<complexType name="monitor-references">
 		<attribute name="candidates" type="integer" use="required" />
 		<attribute name="cleared" type="integer" use="required" />
 	</complexType>
@@ -793,7 +793,7 @@ xmlns:vgc="http://www.ibm.com/j9/verbosegc">
 			<element ref="vgc:ownableSynchronizers" maxOccurs="1" minOccurs="0" />
 			<element ref="vgc:references" maxOccurs="unbounded" minOccurs="0" />
 			<element ref="vgc:stringconstants" maxOccurs="1" minOccurs="0" />
-			<element ref="vgc:monitorreferences" maxOccurs="1" minOccurs="0" />
+			<element ref="vgc:monitor-references" maxOccurs="1" minOccurs="0" />
 			<element ref="vgc:pending-finalizers" maxOccurs="1" minOccurs="0" />
 		</sequence>
 	</group>
@@ -819,6 +819,7 @@ xmlns:vgc="http://www.ibm.com/j9/verbosegc">
 			<element ref="vgc:finalization" maxOccurs="1" minOccurs="0" />
 			<element ref="vgc:ownableSynchronizers" maxOccurs="1" minOccurs="0" />
 			<element ref="vgc:references" maxOccurs="unbounded" minOccurs="0" />
+			<element ref="vgc:monitor-references" maxOccurs="1" minOccurs="0" />
 			<element ref="vgc:pending-finalizers" maxOccurs="1" minOccurs="0" />
 			<element ref="vgc:heap-resize" maxOccurs="1" minOccurs="0" />
 		</sequence>
@@ -853,7 +854,7 @@ xmlns:vgc="http://www.ibm.com/j9/verbosegc">
 			<element ref="vgc:ownableSynchronizers" maxOccurs="1" minOccurs="0" />
 			<element ref="vgc:references" maxOccurs="unbounded" minOccurs="0" />
 			<element ref="vgc:stringconstants" maxOccurs="1" minOccurs="0" />
-			<element ref="vgc:monitorreferences" maxOccurs="1" minOccurs="0" />
+			<element ref="vgc:monitor-references" maxOccurs="1" minOccurs="0" />
 			<element ref="vgc:heap-resize" maxOccurs="1" minOccurs="0" />
 		</sequence>
 	</group>
