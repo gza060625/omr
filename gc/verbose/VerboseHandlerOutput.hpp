@@ -249,7 +249,7 @@ protected:
 	 * @param candidates total count candidate monitor references considered
 	 * @param cleared total count of cleared monitor references
 	 */
-	void outputMonitorReferenceInfo(MM_EnvironmentBase *env, uintptr_t ident, uintptr_t candidates, uintptr_t cleared);
+	void outputMonitorReferenceInfo(MM_EnvironmentBase *env, uintptr_t indent, uintptr_t candidates, uintptr_t cleared);
 
 public:
 	static MM_VerboseHandlerOutput *newInstance(MM_EnvironmentBase *env, MM_VerboseManager *manager);
