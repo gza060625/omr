@@ -133,6 +133,7 @@ MM_VerboseWriterChain::addWriter(MM_VerboseWriter* writer)
 	_writers = writer;
 }
 
+// !@
 void
 MM_VerboseWriterChain::endOfCycle(MM_EnvironmentBase *env)
 {

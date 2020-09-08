@@ -28,6 +28,10 @@
 #include "VerboseManager.hpp"
 
 #include <string.h>
+#include "GCExtensions.hpp"
+#include "Heap.hpp"
+#include "HeapRegionManager.hpp"
+#include "ObjectAccessBarrier.hpp"
 
 MM_VerboseWriterFileLoggingSynchronous::MM_VerboseWriterFileLoggingSynchronous(MM_EnvironmentBase *env, MM_VerboseManager *manager)
 	:MM_VerboseWriterFileLogging(env, manager, VERBOSE_WRITER_FILE_LOGGING_SYNCHRONOUS)
@@ -117,6 +121,93 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 	extensions->getForge()->free(filenameToOpen);
 	
 	omrfile_printf(_logFileDescriptor, getHeader(env), version);
+	const char* temp="!@: MM_VerboseWriterFileLoggingSynchronous::openFile\n\n";
+	omrfile_printf(_logFileDescriptor, temp, version);
+
+	// J9JavaVM* vm = vmThread->javaVM;
+	// PORT_ACCESS_FROM_JAVAVM(vm);
+	// MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(vm);
+	MM_GCExtensions *extensionsExt = MM_GCExtensions::getExtensions(env);
+	UDATA beatMicro = 0;
+	UDATA timeWindowMicro = 0;
+	UDATA targetUtilizationPercentage = 0;
+	UDATA gcInitialTrigger = 0;
+	UDATA headRoom = 0;
+#if defined(J9VM_GC_REALTIME)
+	beatMicro = extensions->beatMicro;
+	timeWindowMicro = extensions->timeWindowMicro;
+	targetUtilizationPercentage = extensions->targetUtilizationPercentage;
+	gcInitialTrigger = extensions->gcInitialTrigger;
+	headRoom = extensions->headRoom;
+#endif /* J9VM_GC_REALTIME */
+
+	UDATA numaNodes = extensions->_numaManager.getAffinityLeaderCount();
+
+	UDATA regionSize = extensionsExt->getHeap()->getHeapRegionManager()->getRegionSize();
+	UDATA regionCount = extensionsExt->getHeap()->getHeapRegionManager()->getTableRegionCount();
+
+	UDATA arrayletLeafSize = 0;
+	arrayletLeafSize = env->getOmrVM()->_arrayletLeafSize;
+
+	// !@!@ Trigger From OMR
+	TRIGGER_J9HOOK_MM_OMR_INITIALIZED(
+		// Same
+		extensions->omrHookInterface,
+
+		// Not sure
+		env->getOmrVMThread(),
+
+		// j9time_hires_clock(),
+		omrtime_hires_clock(),
+
+		// j9gc_get_gcmodestring(vm),
+		extensions->gcModeString,
+
+		0, /* unused */
+
+		// j9gc_get_maximum_heap_size(vm),
+		extensions->memoryMax,
+
+		// j9gc_get_initial_heap_size(vm),
+		extensions->initialMemorySize,
+
+		// j9sysinfo_get_physical_memory(),
+		omrsysinfo_get_physical_memory(),
+
+		// j9sysinfo_get_number_CPUs_by_type(J9PORT_CPU_ONLINE),
+		// Should it be `OMRPORT_CPU_ONLINE`?
+		// omrsysinfo_get_number_CPUs_by_type(OMRPORT_CPU_ONLINE),
+		omrsysinfo_get_number_CPUs_by_type(OMRPORT_CPU_TARGET),
+
+		extensions->gcThreadCount,
+
+		// j9sysinfo_get_CPU_architecture(),
+		omrsysinfo_get_CPU_architecture(),
+
+		// j9sysinfo_get_OS_type(),
+		omrsysinfo_get_OS_type(),
+
+		// j9sysinfo_get_OS_version(),
+		omrsysinfo_get_OS_version(),
+
+		// extensions->accessBarrier->compressedPointersShift(),
+		extensionsExt->accessBarrier->compressedPointersShift(),
+		// 0,
+
+		// Same
+		beatMicro,
+		timeWindowMicro,		
+		targetUtilizationPercentage,
+		gcInitialTrigger,
+		headRoom,
+		extensions->heap->getPageSize(),		
+		getPageTypeString(extensions->heap->getPageFlags()),
+		extensions->requestedPageSize,
+		getPageTypeString(extensions->requestedPageFlags),
+		numaNodes,
+		regionSize,
+		regionCount,
+		arrayletLeafSize);
 	
 	return true;
 }

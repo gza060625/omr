@@ -265,6 +265,7 @@ MM_VerboseHandlerOutput::handleInitialized(J9HookInterface** hook, uintptr_t eve
 
 	getTagTemplate(tagTemplate, sizeof(tagTemplate), _manager->getIdAndIncrement(), omrtime_current_time_millis());
 	enterAtomicReportingBlock();
+	writer->formatAndOutput(env, 0, "!@: handleInitialized");
 	writer->formatAndOutput(env, 0, "<initialized %s>", tagTemplate);
 	writer->formatAndOutput(env, 1, "<attribute name=\"gcPolicy\" value=\"%s\" />", event->gcPolicy);
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)

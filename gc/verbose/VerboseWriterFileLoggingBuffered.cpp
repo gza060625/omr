@@ -83,6 +83,7 @@ MM_VerboseWriterFileLoggingBuffered::tearDown(MM_EnvironmentBase *env)
 bool
 MM_VerboseWriterFileLoggingBuffered::openFile(MM_EnvironmentBase *env)
 {
+	// !@
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 	MM_GCExtensionsBase* extensions = env->getExtensions();
 	const char* version = omrgc_get_version(env->getOmrVM());

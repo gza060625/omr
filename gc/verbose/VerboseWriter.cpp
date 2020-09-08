@@ -83,7 +83,7 @@ MM_VerboseWriter::kill(MM_EnvironmentBase* env) {
 	tearDown(env);
 	env->getExtensions()->getForge()->free(this);
 }
-
+//Tag
 bool
 MM_VerboseWriter::initialize(MM_EnvironmentBase* env)
 {
