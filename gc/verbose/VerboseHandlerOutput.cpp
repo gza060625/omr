@@ -36,6 +36,7 @@
 #include "gcutils.h"
 
 static void verboseHandlerInitialized(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData);
+static void verboseHandlerInitializedNoLock(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData);
 static void verboseHandlerHeapResize(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData);
 
 MM_VerboseHandlerOutput *
@@ -99,6 +100,7 @@ MM_VerboseHandlerOutput::enableVerbose()
 {
 	/* Initialized */
 	(*_mmOmrHooks)->J9HookRegisterWithCallSite(_mmOmrHooks, J9HOOK_MM_OMR_INITIALIZED, verboseHandlerInitialized, OMR_GET_CALLSITE(), (void *)this);
+	(*_mmOmrHooks)->J9HookRegisterWithCallSite(_mmOmrHooks, J9HOOK_MM_OMR_INITIALIZED_NOLOCK, verboseHandlerInitializedNoLock, OMR_GET_CALLSITE(), (void *)this);
 	(*_mmPrivateHooks)->J9HookRegisterWithCallSite(_mmPrivateHooks, J9HOOK_MM_PRIVATE_HEAP_RESIZE, verboseHandlerHeapResize, OMR_GET_CALLSITE(), (void *)this);
 
 	return ;
@@ -109,6 +111,7 @@ MM_VerboseHandlerOutput::disableVerbose()
 {
 	/* Initialized */
 	(*_mmOmrHooks)->J9HookUnregister(_mmOmrHooks, J9HOOK_MM_OMR_INITIALIZED, verboseHandlerInitialized, NULL);
+	(*_mmOmrHooks)->J9HookUnregister(_mmOmrHooks, J9HOOK_MM_OMR_INITIALIZED_NOLOCK, verboseHandlerInitializedNoLock, NULL);
 	(*_mmPrivateHooks)->J9HookUnregister(_mmPrivateHooks, J9HOOK_MM_PRIVATE_HEAP_RESIZE, verboseHandlerHeapResize, NULL);
 
 	return ;
@@ -251,20 +254,17 @@ MM_VerboseHandlerOutput::handleInitializedRegion(J9HookInterface** hook, uintptr
 	writer->formatAndOutput(env, 1, "</region>");
 }
 
+// !@!@ NoLock
 void
-MM_VerboseHandlerOutput::handleInitialized(J9HookInterface** hook, uintptr_t eventNum, void* eventData)
+MM_VerboseHandlerOutput::handleInitializedNoLock(J9HookInterface** hook, uintptr_t eventNum, void* eventData)
 {
-	MM_InitializedEvent* event = (MM_InitializedEvent*)eventData;
+	OMRPORT_ACCESS_FROM_OMRVM(_extensions->getOmrVM());
+	MM_InitializedEvent_NoLock* event = (MM_InitializedEvent_NoLock*)eventData;
 	MM_VerboseWriterChain* writer = _manager->getWriterChain();
 	MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(event->currentThread);
-	OMRPORT_ACCESS_FROM_ENVIRONMENT(env);
-
 	char tagTemplate[200];
-
 	_manager->setInitializedTime(event->timestamp);
-
 	getTagTemplate(tagTemplate, sizeof(tagTemplate), _manager->getIdAndIncrement(), omrtime_current_time_millis());
-	enterAtomicReportingBlock();
 	writer->formatAndOutput(env, 0, "!@: handleInitialized");
 	writer->formatAndOutput(env, 0, "<initialized %s>", tagTemplate);
 	writer->formatAndOutput(env, 1, "<attribute name=\"gcPolicy\" value=\"%s\" />", event->gcPolicy);
@@ -279,6 +279,7 @@ MM_VerboseHandlerOutput::handleInitialized(J9HookInterface** hook, uintptr_t eve
 				"enabled");
 #endif /* defined(S390) || defined(J9ZOS390) */
 	}
+	omrtty_printf("!@: print D\n");
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
 	writer->formatAndOutput(env, 1, "<attribute name=\"maxHeapSize\" value=\"0x%zx\" />", event->maxHeapSize);
 	writer->formatAndOutput(env, 1, "<attribute name=\"initialHeapSize\" value=\"0x%zx\" />", event->initialHeapSize);
@@ -297,12 +298,14 @@ MM_VerboseHandlerOutput::handleInitialized(J9HookInterface** hook, uintptr_t eve
 	writer->formatAndOutput(env, 1, "<attribute name=\"requestedPageSize\" value=\"0x%zx\" />", event->heapRequestedPageSize);
 	writer->formatAndOutput(env, 1, "<attribute name=\"requestedPageType\" value=\"%s\" />", event->heapRequestedPageType);
 	writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads\" value=\"%zu\" />", event->gcThreads);
+	omrtty_printf("!@: print E\n");
 	if (gc_policy_gencon == _extensions->configurationOptions._gcPolicy) {
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
 		if (_extensions->isConcurrentScavengerEnabled()) {
 			writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads Concurrent Scavenger\" value=\"%zu\" />", _extensions->concurrentScavengerBackgroundThreads);
 		}
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
+omrtty_printf("!@: print F\n");
 #if defined(OMR_GC_MODRON_CONCURRENT_MARK)
 		if (_extensions->isConcurrentMarkEnabled()) {
 			writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads Concurrent Mark\" value=\"%zu\" />", _extensions->concurrentBackground);
@@ -331,6 +334,13 @@ MM_VerboseHandlerOutput::handleInitialized(J9HookInterface** hook, uintptr_t eve
 
 	writer->formatAndOutput(env, 0, "</initialized>\n");
 	writer->flush(env);
+}
+// !@!@ Lock
+void
+MM_VerboseHandlerOutput::handleInitialized(J9HookInterface** hook, uintptr_t eventNum, void* eventData)
+{
+	enterAtomicReportingBlock();
+	handleInitializedNoLock(hook, eventNum, eventData);
 	exitAtomicReportingBlock();
 }
 
@@ -1068,6 +1078,12 @@ void
 verboseHandlerInitialized(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData)
 {
 	((MM_VerboseHandlerOutput*)userData)->handleInitialized(hook, eventNum, eventData);
+}
+
+void
+verboseHandlerInitializedNoLock(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData)
+{
+	((MM_VerboseHandlerOutput*)userData)->handleInitializedNoLock(hook, eventNum, eventData);
 }
 
 void

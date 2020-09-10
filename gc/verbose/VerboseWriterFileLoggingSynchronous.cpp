@@ -124,9 +124,6 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 	const char* temp="!@: MM_VerboseWriterFileLoggingSynchronous::openFile\n\n";
 	omrfile_printf(_logFileDescriptor, temp, version);
 
-	// J9JavaVM* vm = vmThread->javaVM;
-	// PORT_ACCESS_FROM_JAVAVM(vm);
-	// MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(vm);
 	MM_GCExtensions *extensionsExt = MM_GCExtensions::getExtensions(env);
 	UDATA beatMicro = 0;
 	UDATA timeWindowMicro = 0;
@@ -149,8 +146,10 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 	UDATA arrayletLeafSize = 0;
 	arrayletLeafSize = env->getOmrVM()->_arrayletLeafSize;
 
+	const char* temp2="!@: Before Trigger\n\n";
+	omrfile_printf(_logFileDescriptor, temp2, version);
 	// !@!@ Trigger From OMR
-	TRIGGER_J9HOOK_MM_OMR_INITIALIZED(
+	TRIGGER_J9HOOK_MM_OMR_INITIALIZED_NOLOCK(
 		// Same
 		extensions->omrHookInterface,
 
@@ -177,7 +176,7 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 		// j9sysinfo_get_number_CPUs_by_type(J9PORT_CPU_ONLINE),
 		// Should it be `OMRPORT_CPU_ONLINE`?
 		// omrsysinfo_get_number_CPUs_by_type(OMRPORT_CPU_ONLINE),
-		omrsysinfo_get_number_CPUs_by_type(OMRPORT_CPU_TARGET),
+		omrsysinfo_get_number_CPUs_by_type(OMRPORT_CPU_ONLINE),
 
 		extensions->gcThreadCount,
 
@@ -208,6 +207,9 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 		regionSize,
 		regionCount,
 		arrayletLeafSize);
+
+		const char* temp3="!@: After Trigger\n\n";
+		omrfile_printf(_logFileDescriptor, temp3, version);
 	
 	return true;
 }
