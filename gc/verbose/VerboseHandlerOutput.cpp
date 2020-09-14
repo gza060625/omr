@@ -259,6 +259,7 @@ void
 MM_VerboseHandlerOutput::handleInitializedNoLock(J9HookInterface** hook, uintptr_t eventNum, void* eventData)
 {
 	OMRPORT_ACCESS_FROM_OMRVM(_extensions->getOmrVM());
+	omrtty_printf("!@: handleInitializedNoLock start eventNum:%d \n",eventNum);
 	MM_InitializedEvent_NoLock* event = (MM_InitializedEvent_NoLock*)eventData;
 	MM_VerboseWriterChain* writer = _manager->getWriterChain();
 	MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(event->currentThread);
@@ -279,7 +280,7 @@ MM_VerboseHandlerOutput::handleInitializedNoLock(J9HookInterface** hook, uintptr
 				"enabled");
 #endif /* defined(S390) || defined(J9ZOS390) */
 	}
-	omrtty_printf("!@: print D\n");
+	
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
 	writer->formatAndOutput(env, 1, "<attribute name=\"maxHeapSize\" value=\"0x%zx\" />", event->maxHeapSize);
 	writer->formatAndOutput(env, 1, "<attribute name=\"initialHeapSize\" value=\"0x%zx\" />", event->initialHeapSize);
@@ -298,14 +299,12 @@ MM_VerboseHandlerOutput::handleInitializedNoLock(J9HookInterface** hook, uintptr
 	writer->formatAndOutput(env, 1, "<attribute name=\"requestedPageSize\" value=\"0x%zx\" />", event->heapRequestedPageSize);
 	writer->formatAndOutput(env, 1, "<attribute name=\"requestedPageType\" value=\"%s\" />", event->heapRequestedPageType);
 	writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads\" value=\"%zu\" />", event->gcThreads);
-	omrtty_printf("!@: print E\n");
 	if (gc_policy_gencon == _extensions->configurationOptions._gcPolicy) {
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
 		if (_extensions->isConcurrentScavengerEnabled()) {
 			writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads Concurrent Scavenger\" value=\"%zu\" />", _extensions->concurrentScavengerBackgroundThreads);
 		}
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
-omrtty_printf("!@: print F\n");
 #if defined(OMR_GC_MODRON_CONCURRENT_MARK)
 		if (_extensions->isConcurrentMarkEnabled()) {
 			writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads Concurrent Mark\" value=\"%zu\" />", _extensions->concurrentBackground);
@@ -333,7 +332,11 @@ omrtty_printf("!@: print F\n");
 	writeVmArgs(env);
 
 	writer->formatAndOutput(env, 0, "</initialized>\n");
+	writer->formatAndOutput(env, 0, "!@: buffer\n");
+	omrtty_printf("!@: handleInitializedNoLock flush start\n");
 	writer->flush(env);
+	omrtty_printf("!@: handleInitializedNoLock flush end\n");
+	omrtty_printf("!@: handleInitializedNoLock end eventNum:%d \n",eventNum);
 }
 // !@!@ Lock
 void

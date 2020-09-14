@@ -87,7 +87,7 @@ MM_VerboseWriterFileLoggingSynchronous::tearDown(MM_EnvironmentBase *env)
 bool
 MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 {
-	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());	
 	MM_GCExtensionsBase* extensions = env->getExtensions();
 	const char* version = omrgc_get_version(env->getOmrVM());
 	
@@ -95,6 +95,8 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 	if (NULL == filenameToOpen) {
 		return false;
 	}
+
+	omrtty_printf("!@: openFile start %s\n",filenameToOpen);
 	
 	_logFileDescriptor = omrfile_open(filenameToOpen, EsOpenRead | EsOpenWrite | EsOpenCreate | EsOpenTruncate, 0666);
 	if(-1 == _logFileDescriptor) {
@@ -210,6 +212,7 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 
 		const char* temp3="!@: After Trigger\n\n";
 		omrfile_printf(_logFileDescriptor, temp3, version);
+		omrtty_printf("!@: openFile end %s\n",filenameToOpen);
 	
 	return true;
 }
