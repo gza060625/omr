@@ -40,6 +40,7 @@ MM_VerboseWriter::MM_VerboseWriter(WriterType type)
 	,_nextWriter(NULL)
 	,_header(NULL)
 	,_footer(NULL)
+	,_initial(NULL)
 	,_type(type)
 	,_isActive(false)
 {}
@@ -54,6 +55,12 @@ const char*
 MM_VerboseWriter::getFooter(MM_EnvironmentBase *env)
 {
 	return _footer;
+}
+
+const char*
+MM_VerboseWriter::getInitial(MM_EnvironmentBase *env)
+{
+	return _initial;
 }
 
 MM_VerboseWriter*
@@ -98,7 +105,7 @@ MM_VerboseWriter::initialize(MM_EnvironmentBase* env)
 	if (NULL == _header) {
 		return false;
 	}
-	omrstr_printf(_header, headerLength, VERBOSEGC_HEADER, version);
+	// omrstr_printf(_header, headerLength, VERBOSEGC_HEADER, version);
 
 	/* Initialize _footer */
 	uintptr_t footerLength = strlen(VERBOSEGC_FOOTER) + 1;

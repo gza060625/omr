@@ -121,10 +121,11 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 	}
 
 	extensions->getForge()->free(filenameToOpen);
-	
+	// omrfile_write_text
 	omrfile_printf(_logFileDescriptor, getHeader(env), version);
 	const char* temp="!@: MM_VerboseWriterFileLoggingSynchronous::openFile\n\n";
-	omrfile_printf(_logFileDescriptor, temp, version);
+	omrfile_printf(_logFileDescriptor, temp);
+	omrfile_printf(_logFileDescriptor, getInitial(env));
 
 	MM_GCExtensions *extensionsExt = MM_GCExtensions::getExtensions(env);
 	UDATA beatMicro = 0;

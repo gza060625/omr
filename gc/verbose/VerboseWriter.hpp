@@ -54,6 +54,7 @@ private:
 
 	char* _header;
 	char* _footer;
+	char* _initial;
 
 	WriterType _type;
 	bool _isActive;
@@ -89,6 +90,7 @@ protected:
 
 	const char* getHeader(MM_EnvironmentBase *env);
 	const char* getFooter(MM_EnvironmentBase *env);
+	const char* getInitial(MM_EnvironmentBase *env);
 private:
 };
 
