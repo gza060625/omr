@@ -105,7 +105,7 @@ MM_VerboseWriter::initialize(MM_EnvironmentBase* env)
 	if (NULL == _header) {
 		return false;
 	}
-	// omrstr_printf(_header, headerLength, VERBOSEGC_HEADER, version);
+	omrstr_printf(_header, headerLength, VERBOSEGC_HEADER, version);
 
 	/* Initialize _footer */
 	uintptr_t footerLength = strlen(VERBOSEGC_FOOTER) + 1;

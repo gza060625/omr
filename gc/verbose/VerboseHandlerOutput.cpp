@@ -99,6 +99,7 @@ void
 MM_VerboseHandlerOutput::enableVerbose()
 {
 	/* Initialized */
+	// !@!@ enbaleHook
 	(*_mmOmrHooks)->J9HookRegisterWithCallSite(_mmOmrHooks, J9HOOK_MM_OMR_INITIALIZED, verboseHandlerInitialized, OMR_GET_CALLSITE(), (void *)this);
 	(*_mmOmrHooks)->J9HookRegisterWithCallSite(_mmOmrHooks, J9HOOK_MM_OMR_INITIALIZED_NOLOCK, verboseHandlerInitializedNoLock, OMR_GET_CALLSITE(), (void *)this);
 	(*_mmPrivateHooks)->J9HookRegisterWithCallSite(_mmPrivateHooks, J9HOOK_MM_PRIVATE_HEAP_RESIZE, verboseHandlerHeapResize, OMR_GET_CALLSITE(), (void *)this);
@@ -254,7 +255,7 @@ MM_VerboseHandlerOutput::handleInitializedRegion(J9HookInterface** hook, uintptr
 	writer->formatAndOutput(env, 1, "</region>");
 }
 
-// !@!@ NoLock
+// !@!@ NoLock Print
 void
 MM_VerboseHandlerOutput::handleInitializedNoLock(J9HookInterface** hook, uintptr_t eventNum, void* eventData)
 {
