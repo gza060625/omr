@@ -123,18 +123,17 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 			return false;
 		}
 	}
-	// _manager->handleFileOpenSuccess(env, filenameToOpen);
+
 	extensions->getForge()->free(filenameToOpen);
 	// omrfile_write_text
 	omrfile_printf(_logFileDescriptor, getHeader(env), version);
-	omrfile_printf(_logFileDescriptor, getHeader(env));
+
 	const char* temp="!@: MM_VerboseWriterFileLoggingSynchronous::openFile\n\n";
 	omrfile_printf(_logFileDescriptor, temp);
-	MM_VerboseWriterChain* writer = _manager->getWriterChain();
-	// omrfile_printf(_logFileDescriptor, getInitial(env));
 
-	// writer->formatAndOutput(env, 0, "!@: new INIT Start\n");	
+	MM_VerboseWriterChain* writer = _manager->getWriterChain();
 	MM_GCExtensions *extensionsExt = MM_GCExtensions::getExtensions(env);
+
 	// UDATA beatMicro = 0;
 	// UDATA timeWindowMicro = 0;
 	// UDATA targetUtilizationPercentage = 0;
@@ -156,30 +155,16 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 	// UDATA arrayletLeafSize = 0;
 	// arrayletLeafSize = env->getOmrVM()->_arrayletLeafSize;
 
-	omrfile_printf(_logFileDescriptor, "!@: new INIT Start\n");
-	char tagTemplate[200];
+	omrfile_printf(_logFileDescriptor, "!@: INIT Start\n");
+	
 
 	_manager->setInitializedTime(omrtime_hires_clock());
-	// VerboseHandlerOutput::getTagTemplate(tagTemplate, sizeof(tagTemplate), _manager->getIdAndIncrement(), omrtime_current_time_millis());
+	char tagTemplate[200];
 	MM_VerboseHandlerOutput *_verboseHandlerOutput = MM_VerboseHandlerOutput::newInstance(env, _manager);
 	_verboseHandlerOutput->getTagTemplate(tagTemplate, sizeof(tagTemplate), _manager->getIdAndIncrement(), omrtime_current_time_millis());
-	// omrfile_printf(_logFileDescriptor, "<initialized %s>\n", tagTemplate);
-	// omrfile_printf(_logFileDescriptor, "\t<attribute name=\"gcPolicy\" value=\"%s\" />\n", extensions->gcModeString);
 
 	writer->formatAndOutput(env, 0, "<initialized %s>", tagTemplate);
 	writer->formatAndOutput(env, 1, "<attribute name=\"gcPolicy\" value=\"%s\" />", extensions->gcModeString);
-// #if defined(OMR_GC_CONCURRENT_SCAVENGER)
-// 	if (extensions->isConcurrentScavengerEnabled()) {
-// 		omrfile_printf(_logFileDescriptor, "\t<attribute name=\"concurrentScavenger\" value=\"%s\" />", extensions->gcModeString,
-// #if defined(S390) || defined(J9ZOS390)
-// 				extensions->concurrentScavengerHWSupport ?
-// 				"enabled, with H/W assistance" :
-// 				"enabled, without H/W assistance");
-// #else /* defined(S390) || defined(J9ZOS390) */
-// 				"enabled");
-// #endif /* defined(S390) || defined(J9ZOS390) */
-// 	}
-// #endif /* OMR_GC_CONCURRENT_SCAVENGER */
 
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
 	if (extensions->isConcurrentScavengerEnabled()) {
@@ -195,20 +180,8 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 	
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
 
-	// omrfile_printf(_logFileDescriptor, "\t<attribute name=\"maxHeapSize\" value=\"0x%zx\" />\n", extensions->memoryMax);
-	// omrfile_printf(_logFileDescriptor, "\t<attribute name=\"initialHeapSize\" value=\"0x%zx\" />\n", extensions->initialMemorySize);
 	writer->formatAndOutput(env, 1, "<attribute name=\"maxHeapSize\" value=\"0x%zx\" />", extensions->memoryMax);
 	writer->formatAndOutput(env, 1, "<attribute name=\"initialHeapSize\" value=\"0x%zx\" />", extensions->initialMemorySize);
-// #if defined(OMR_GC_COMPRESSED_POINTERS)
-// 	if (env->compressObjectReferences()) {
-// 		omrfile_printf(_logFileDescriptor, "\t<attribute name=\"compressedRefs\" value=\"true\" />\n");
-// 		omrfile_printf(_logFileDescriptor, "\t<attribute name=\"compressedRefsDisplacement\" value=\"0x%zx\" />\n", 0);
-// 		omrfile_printf(_logFileDescriptor, "\t<attribute name=\"compressedRefsShift\" value=\"0x%zx\" />\n", extensionsExt->accessBarrier->compressedPointersShift());
-// 	} else
-// #endif /* defined(OMR_GC_COMPRESSED_POINTERS) */
-// 	{
-// 		omrfile_printf(_logFileDescriptor, "\t<attribute name=\"compressedRefs\" value=\"false\" />\n");
-// 	}
 
 #if defined(OMR_GC_COMPRESSED_POINTERS)
 	if (env->compressObjectReferences()) {
@@ -221,32 +194,11 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 		writer->formatAndOutput(env, 1, "<attribute name=\"compressedRefs\" value=\"false\" />");
 	}
 
-	// omrfile_printf(_logFileDescriptor, "\t<attribute name=\"pageSize\" value=\"0x%zx\" />\n", extensions->heap->getPageSize());
-	// omrfile_printf(_logFileDescriptor, "\t<attribute name=\"pageType\" value=\"%s\" />\n", getPageTypeString(extensions->heap->getPageFlags()));
-	// omrfile_printf(_logFileDescriptor, "\t<attribute name=\"requestedPageSize\" value=\"0x%zx\" />\n", extensions->requestedPageSize);
-	// omrfile_printf(_logFileDescriptor, "\t<attribute name=\"requestedPageType\" value=\"%s\" />\n", getPageTypeString(extensions->requestedPageFlags));
-	// omrfile_printf(_logFileDescriptor, "\t<attribute name=\"gcthreads\" value=\"%zu\" />\n", extensions->gcThreadCount);
-
 	writer->formatAndOutput(env, 1, "<attribute name=\"pageSize\" value=\"0x%zx\" />", extensions->heap->getPageSize());
 	writer->formatAndOutput(env, 1, "<attribute name=\"pageType\" value=\"%s\" />", getPageTypeString(extensions->heap->getPageFlags()));
 	writer->formatAndOutput(env, 1, "<attribute name=\"requestedPageSize\" value=\"0x%zx\" />", extensions->requestedPageSize);
 	writer->formatAndOutput(env, 1, "<attribute name=\"requestedPageType\" value=\"%s\" />", getPageTypeString(extensions->requestedPageFlags));
 	writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads\" value=\"%zu\" />", extensions->gcThreadCount);
-
-// 	if (gc_policy_gencon == extensions->configurationOptions._gcPolicy) {
-// #if defined(OMR_GC_CONCURRENT_SCAVENGER)
-// 		if (extensions->isConcurrentScavengerEnabled()) {
-// 			// writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads Concurrent Scavenger\" value=\"%zu\" />", _extensions->concurrentScavengerBackgroundThreads);
-// 			omrfile_printf(_logFileDescriptor, "\t<attribute name=\"gcthreads Concurrent Scavenger\" value=\"%zu\" />\n", extensions->concurrentScavengerBackgroundThreads);
-// 		}
-// #endif /* OMR_GC_CONCURRENT_SCAVENGER */
-// #if defined(OMR_GC_MODRON_CONCURRENT_MARK)
-// 	if (extensions->isConcurrentMarkEnabled()) {
-// 			// writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads Concurrent Mark\" value=\"%zu\" />", _extensions->concurrentBackground);
-// 			omrfile_printf(_logFileDescriptor, "\t<attribute name=\"gcthreads Concurrent Mark\" value=\"%zu\" />\n", extensions->concurrentBackground);
-// 		}
-// #endif /* OMR_GC_MODRON_CONCURRENT_MARK */
-// 	}
 
 	if (gc_policy_gencon == extensions->configurationOptions._gcPolicy) {
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
@@ -261,13 +213,6 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 #endif /* OMR_GC_MODRON_CONCURRENT_MARK */
 	}	
 
-// 	omrfile_printf(_logFileDescriptor, "\t<attribute name=\"packetListSplit\" value=\"%zu\" />\n", extensions->packetListSplit);
-// #if defined(OMR_GC_MODRON_SCAVENGER)
-// 	omrfile_printf(_logFileDescriptor, "\t<attribute name=\"cacheListSplit\" value=\"%zu\" />\n", extensions->cacheListSplit);
-// #endif /* OMR_GC_MODRON_SCAVENGER */
-// 	omrfile_printf(_logFileDescriptor, "\t<attribute name=\"splitFreeListSplitAmount\" value=\"%zu\" />\n", extensions->splitFreeListSplitAmount);
-// 	omrfile_printf(_logFileDescriptor, "\t<attribute name=\"numaNodes\" value=\"%zu\" />\n", numaNodes);
-
 	writer->formatAndOutput(env, 1, "<attribute name=\"packetListSplit\" value=\"%zu\" />", extensions->packetListSplit);
 #if defined(OMR_GC_MODRON_SCAVENGER)
 	writer->formatAndOutput(env, 1, "<attribute name=\"cacheListSplit\" value=\"%zu\" />", extensions->cacheListSplit);
@@ -277,13 +222,6 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 
 	// handleInitializedInnerStanzas(hook, eventNum, eventData);
 
-	// omrfile_printf(_logFileDescriptor, "\t<system>\n");
-	// omrfile_printf(_logFileDescriptor, "\t\t<attribute name=\"physicalMemory\" value=\"%llu\" />\n", omrsysinfo_get_physical_memory());
-	// omrfile_printf(_logFileDescriptor, "\t\t<attribute name=\"numCPUs\" value=\"%zu\" />\n", omrsysinfo_get_number_CPUs_by_type(OMRPORT_CPU_ONLINE));
-	// omrfile_printf(_logFileDescriptor, "\t\t<attribute name=\"architecture\" value=\"%s\" />\n", omrsysinfo_get_CPU_architecture());
-	// omrfile_printf(_logFileDescriptor, "\t\t<attribute name=\"os\" value=\"%s\" />\n", omrsysinfo_get_OS_type());
-	// omrfile_printf(_logFileDescriptor, "\t\t<attribute name=\"osVersion\" value=\"%s\" />\n", omrsysinfo_get_OS_version());
-
 	writer->formatAndOutput(env, 1, "<system>");
 	writer->formatAndOutput(env, 2, "<attribute name=\"physicalMemory\" value=\"%llu\" />", omrsysinfo_get_physical_memory());
 	writer->formatAndOutput(env, 2, "<attribute name=\"numCPUs\" value=\"%zu\" />", omrsysinfo_get_number_CPUs_by_type(OMRPORT_CPU_ONLINE));
@@ -291,17 +229,12 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 	writer->formatAndOutput(env, 2, "<attribute name=\"os\" value=\"%s\" />", omrsysinfo_get_OS_type());
 	writer->formatAndOutput(env, 2, "<attribute name=\"osVersion\" value=\"%s\" />", omrsysinfo_get_OS_version());
 	writer->formatAndOutput(env, 1, "</system>");
+
 	_manager->handleFileOpenSuccess(env, filenameToOpen);
+
 	writer->formatAndOutput(env, 0, "</initialized>\n");
-	// omrfile_printf(_logFileDescriptor, "\t</initialized>\n");
 	
-	// writer->formatAndOutput(env, 0, "!@: test writer\n");
-	omrfile_printf(_logFileDescriptor, "\n!@: new INIT End\n");
-
-	// JavaVMInitArgs* vmArgs = env->getOmrVMThread()->vmArgsArray->actualVMArgs;
-	
-
-	
+	omrfile_printf(_logFileDescriptor, "\n!@: INIT End\n");
 
 
 	// const char* temp2="!@: Before Trigger\n\n";
@@ -349,6 +282,7 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 
 	// 	// extensions->accessBarrier->compressedPointersShift(),
 	// 	extensionsExt->accessBarrier->compressedPointersShift(),
+
 	// 	// 0,
 
 	// 	// Same
