@@ -120,6 +120,7 @@ public:
 	MMINLINE MM_VerboseWriterChain* getWriterChain() { return _writerChain; }
 	
 	virtual void handleFileOpenError(MM_EnvironmentBase *env, char *fileName) {}
+	virtual void handleFileOpenSuccess(MM_EnvironmentBase *env, char *fileName) {}
 
 	MM_VerboseManager(OMR_VM *omrVM)
 		: MM_VerboseManagerBase(omrVM)

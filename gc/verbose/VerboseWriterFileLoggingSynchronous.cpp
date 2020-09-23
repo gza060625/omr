@@ -122,7 +122,7 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 			return false;
 		}
 	}
-
+	_manager->handleFileOpenSuccess(env, filenameToOpen);
 	extensions->getForge()->free(filenameToOpen);
 	// omrfile_write_text
 	omrfile_printf(_logFileDescriptor, getHeader(env), version);
@@ -252,7 +252,7 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 
 	omrfile_printf(_logFileDescriptor, "\n!@: new INIT End\n");
 
-	JavaVMInitArgs* vmArgs = env->getOmrVMThread()->vmArgsArray->actualVMArgs;
+	// JavaVMInitArgs* vmArgs = env->getOmrVMThread()->vmArgsArray->actualVMArgs;
 	
 
 	
