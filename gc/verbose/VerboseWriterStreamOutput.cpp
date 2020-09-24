@@ -56,7 +56,6 @@ MM_VerboseWriterStreamOutput::newInstance(MM_EnvironmentBase *env, const char *f
 /**
  * Initializes the MM_VerboseWriterStreamOutput instance.
  */
-// !@ HEADER
 bool
 MM_VerboseWriterStreamOutput::initialize(MM_EnvironmentBase *env, const char *filename)
 {
