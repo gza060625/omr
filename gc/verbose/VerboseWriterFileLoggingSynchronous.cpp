@@ -85,77 +85,22 @@ MM_VerboseWriterFileLoggingSynchronous::tearDown(MM_EnvironmentBase *env)
 }
 
 /**
- * Opens the file to log output to and prints the header.
- * @return true on sucess, false otherwise
+ * print
  */
-bool
-MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
+void
+MM_VerboseWriterFileLoggingSynchronous::print(MM_EnvironmentBase *env)
 {
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());	
 	MM_GCExtensionsBase* extensions = env->getExtensions();
-	const char* version = omrgc_get_version(env->getOmrVM());
-	
-	char *filenameToOpen = expandFilename(env, _currentFile);
-	if (NULL == filenameToOpen) {
-		return false;
-	}
-
-	omrtty_printf("!@: openFile start %s\n",filenameToOpen);
-	
-	_logFileDescriptor = omrfile_open(filenameToOpen, EsOpenRead | EsOpenWrite | EsOpenCreate | EsOpenTruncate, 0666);
-	if(-1 == _logFileDescriptor) {
-		char *cursor = filenameToOpen;
-		/**
-		 * This may have failed due to directories in the path not being available.
-		 * Try to create these directories and attempt to open again before failing.
-		 */
-		while ( (cursor = strchr(++cursor, DIR_SEPARATOR)) != NULL ) {
-			*cursor = '\0';
-			omrfile_mkdir(filenameToOpen);
-			*cursor = DIR_SEPARATOR;
-		}
-
-		/* Try again */
-		_logFileDescriptor = omrfile_open(filenameToOpen, EsOpenRead | EsOpenWrite | EsOpenCreate | EsOpenTruncate, 0666);
-		if (-1 == _logFileDescriptor) {
-			_manager->handleFileOpenError(env, filenameToOpen);
-			extensions->getForge()->free(filenameToOpen);
-			return false;
-		}
-	}
-
-	extensions->getForge()->free(filenameToOpen);
-	// omrfile_write_text
-	omrfile_printf(_logFileDescriptor, getHeader(env), version);
-
-	const char* temp="!@: MM_VerboseWriterFileLoggingSynchronous::openFile\n\n";
-	omrfile_printf(_logFileDescriptor, temp);
+	// const char* temp="!@: MM_VerboseWriterFileLoggingSynchronous::openFile\n\n";
+	// omrfile_printf(_logFileDescriptor, temp);
 
 	MM_VerboseWriterChain* writer = _manager->getWriterChain();
 	MM_GCExtensions *extensionsExt = MM_GCExtensions::getExtensions(env);
 
-	// UDATA beatMicro = 0;
-	// UDATA timeWindowMicro = 0;
-	// UDATA targetUtilizationPercentage = 0;
-	// UDATA gcInitialTrigger = 0;
-	// UDATA headRoom = 0;
-#if defined(J9VM_GC_REALTIME)
-	// beatMicro = extensions->beatMicro;
-	// timeWindowMicro = extensions->timeWindowMicro;
-	// targetUtilizationPercentage = extensions->targetUtilizationPercentage;
-	// gcInitialTrigger = extensions->gcInitialTrigger;
-	// headRoom = extensions->headRoom;
-#endif /* J9VM_GC_REALTIME */
-
 	UDATA numaNodes = extensions->_numaManager.getAffinityLeaderCount();
 
-	// UDATA regionSize = extensionsExt->getHeap()->getHeapRegionManager()->getRegionSize();
-	// UDATA regionCount = extensionsExt->getHeap()->getHeapRegionManager()->getTableRegionCount();
-
-	// UDATA arrayletLeafSize = 0;
-	// arrayletLeafSize = env->getOmrVM()->_arrayletLeafSize;
-
-	omrfile_printf(_logFileDescriptor, "!@: INIT Start\n");
+	// omrfile_printf(_logFileDescriptor, "!@: INIT Start\n");
 	
 
 	_manager->setInitializedTime(omrtime_hires_clock());
@@ -230,79 +175,58 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 	writer->formatAndOutput(env, 2, "<attribute name=\"osVersion\" value=\"%s\" />", omrsysinfo_get_OS_version());
 	writer->formatAndOutput(env, 1, "</system>");
 
-	_manager->handleFileOpenSuccess(env, filenameToOpen);
-
-	writer->formatAndOutput(env, 0, "</initialized>\n");
+	_manager->handleFileOpenSuccess(env);
 	
-	omrfile_printf(_logFileDescriptor, "\n!@: INIT End\n");
+	writer->formatAndOutput(env, 0, "</initialized>");
+	
+	// omrfile_printf(_logFileDescriptor, "\n!@: INIT End\n");
+}
 
+/**
+ * Opens the file to log output to and prints the header.
+ * @return true on sucess, false otherwise
+ */
+bool
+MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
+{
+	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());	
+	MM_GCExtensionsBase* extensions = env->getExtensions();
+	const char* version = omrgc_get_version(env->getOmrVM());
+	
+	char *filenameToOpen = expandFilename(env, _currentFile);
+	if (NULL == filenameToOpen) {
+		return false;
+	}
 
-	// const char* temp2="!@: Before Trigger\n\n";
-	// omrfile_printf(_logFileDescriptor, temp2, version);
-	// // !@!@ Trigger From OMR
-	// TRIGGER_J9HOOK_MM_OMR_INITIALIZED_NOLOCK(
-	// 	// Same
-	// 	extensions->omrHookInterface,
+	omrtty_printf("!@: openFile start %s\n",filenameToOpen);
+	
+	_logFileDescriptor = omrfile_open(filenameToOpen, EsOpenRead | EsOpenWrite | EsOpenCreate | EsOpenTruncate, 0666);
+	if(-1 == _logFileDescriptor) {
+		char *cursor = filenameToOpen;
+		/**
+		 * This may have failed due to directories in the path not being available.
+		 * Try to create these directories and attempt to open again before failing.
+		 */
+		while ( (cursor = strchr(++cursor, DIR_SEPARATOR)) != NULL ) {
+			*cursor = '\0';
+			omrfile_mkdir(filenameToOpen);
+			*cursor = DIR_SEPARATOR;
+		}
 
-	// 	// Not sure
-	// 	env->getOmrVMThread(),
+		/* Try again */
+		_logFileDescriptor = omrfile_open(filenameToOpen, EsOpenRead | EsOpenWrite | EsOpenCreate | EsOpenTruncate, 0666);
+		if (-1 == _logFileDescriptor) {
+			_manager->handleFileOpenError(env, filenameToOpen);
+			extensions->getForge()->free(filenameToOpen);
+			return false;
+		}
+	}
 
-	// 	// j9time_hires_clock(),
-	// 	omrtime_hires_clock(),
+	extensions->getForge()->free(filenameToOpen);
+	// omrfile_write_text
+	omrfile_printf(_logFileDescriptor, getHeader(env), version);
 
-	// 	// j9gc_get_gcmodestring(vm),
-	// 	extensions->gcModeString,
-
-	// 	0, /* unused */
-
-	// 	// j9gc_get_maximum_heap_size(vm),
-	// 	extensions->memoryMax,
-
-	// 	// j9gc_get_initial_heap_size(vm),
-	// 	extensions->initialMemorySize,
-
-	// 	// j9sysinfo_get_physical_memory(),
-	// 	omrsysinfo_get_physical_memory(),
-
-	// 	// j9sysinfo_get_number_CPUs_by_type(J9PORT_CPU_ONLINE),
-	// 	// Should it be `OMRPORT_CPU_ONLINE`?
-	// 	// omrsysinfo_get_number_CPUs_by_type(OMRPORT_CPU_ONLINE),
-	// 	omrsysinfo_get_number_CPUs_by_type(OMRPORT_CPU_ONLINE),
-
-	// 	extensions->gcThreadCount,
-
-	// 	// j9sysinfo_get_CPU_architecture(),
-	// 	omrsysinfo_get_CPU_architecture(),
-
-	// 	// j9sysinfo_get_OS_type(),
-	// 	omrsysinfo_get_OS_type(),
-
-	// 	// j9sysinfo_get_OS_version(),
-	// 	omrsysinfo_get_OS_version(),
-
-	// 	// extensions->accessBarrier->compressedPointersShift(),
-	// 	extensionsExt->accessBarrier->compressedPointersShift(),
-
-	// 	// 0,
-
-	// 	// Same
-	// 	beatMicro,
-	// 	timeWindowMicro,		
-	// 	targetUtilizationPercentage,
-	// 	gcInitialTrigger,
-	// 	headRoom,
-	// 	extensions->heap->getPageSize(),		
-	// 	getPageTypeString(extensions->heap->getPageFlags()),
-	// 	extensions->requestedPageSize,
-	// 	getPageTypeString(extensions->requestedPageFlags),
-	// 	numaNodes,
-	// 	regionSize,
-	// 	regionCount,
-	// 	arrayletLeafSize);
-
-		// const char* temp3="!@: After Trigger\n\n";
-		// omrfile_printf(_logFileDescriptor, temp3, version);
-		// omrtty_printf("!@: openFile end %s\n",filenameToOpen);
+	print(env);
 	
 	return true;
 }
