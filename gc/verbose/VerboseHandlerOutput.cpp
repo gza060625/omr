@@ -36,7 +36,6 @@
 #include "gcutils.h"
 
 static void verboseHandlerInitialized(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData);
-static void verboseHandlerInitializedNoLock(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData);
 static void verboseHandlerHeapResize(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData);
 
 MM_VerboseHandlerOutput *
@@ -99,9 +98,7 @@ void
 MM_VerboseHandlerOutput::enableVerbose()
 {
 	/* Initialized */
-	// !@!@ enbaleHook
 	(*_mmOmrHooks)->J9HookRegisterWithCallSite(_mmOmrHooks, J9HOOK_MM_OMR_INITIALIZED, verboseHandlerInitialized, OMR_GET_CALLSITE(), (void *)this);
-	(*_mmOmrHooks)->J9HookRegisterWithCallSite(_mmOmrHooks, J9HOOK_MM_OMR_INITIALIZED_NOLOCK, verboseHandlerInitializedNoLock, OMR_GET_CALLSITE(), (void *)this);
 	(*_mmPrivateHooks)->J9HookRegisterWithCallSite(_mmPrivateHooks, J9HOOK_MM_PRIVATE_HEAP_RESIZE, verboseHandlerHeapResize, OMR_GET_CALLSITE(), (void *)this);
 
 	return ;
@@ -112,7 +109,6 @@ MM_VerboseHandlerOutput::disableVerbose()
 {
 	/* Initialized */
 	(*_mmOmrHooks)->J9HookUnregister(_mmOmrHooks, J9HOOK_MM_OMR_INITIALIZED, verboseHandlerInitialized, NULL);
-	(*_mmOmrHooks)->J9HookUnregister(_mmOmrHooks, J9HOOK_MM_OMR_INITIALIZED_NOLOCK, verboseHandlerInitializedNoLock, NULL);
 	(*_mmPrivateHooks)->J9HookUnregister(_mmPrivateHooks, J9HOOK_MM_PRIVATE_HEAP_RESIZE, verboseHandlerHeapResize, NULL);
 
 	return ;
@@ -255,33 +251,33 @@ MM_VerboseHandlerOutput::handleInitializedRegion(J9HookInterface** hook, uintptr
 	writer->formatAndOutput(env, 1, "</region>");
 }
 
-// !@!@ NoLock Print
 void
-MM_VerboseHandlerOutput::handleInitializedNoLock(J9HookInterface** hook, uintptr_t eventNum, void* eventData)
+MM_VerboseHandlerOutput::handleInitialized(J9HookInterface** hook, uintptr_t eventNum, void* eventData)
 {
-	OMRPORT_ACCESS_FROM_OMRVM(_extensions->getOmrVM());
-	omrtty_printf("!@: handleInitializedNoLock start eventNum:%d \n",eventNum);
-	MM_InitializedEvent_NoLock* event = (MM_InitializedEvent_NoLock*)eventData;
+	MM_InitializedEvent* event = (MM_InitializedEvent*)eventData;
 	MM_VerboseWriterChain* writer = _manager->getWriterChain();
 	MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(event->currentThread);
+	OMRPORT_ACCESS_FROM_ENVIRONMENT(env);
+
 	char tagTemplate[200];
+
 	_manager->setInitializedTime(event->timestamp);
+
 	getTagTemplate(tagTemplate, sizeof(tagTemplate), _manager->getIdAndIncrement(), omrtime_current_time_millis());
-	writer->formatAndOutput(env, 0, "!@: handleInitialized");
+	enterAtomicReportingBlock();
 	writer->formatAndOutput(env, 0, "<initialized %s>", tagTemplate);
 	writer->formatAndOutput(env, 1, "<attribute name=\"gcPolicy\" value=\"%s\" />", event->gcPolicy);
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
 	if (_extensions->isConcurrentScavengerEnabled()) {
 		writer->formatAndOutput(env, 1, "<attribute name=\"concurrentScavenger\" value=\"%s\" />",
-#if defined(S390) || defined(J9ZOS390)
+#if defined(S390)
 				_extensions->concurrentScavengerHWSupport ?
 				"enabled, with H/W assistance" :
 				"enabled, without H/W assistance");
-#else /* defined(S390) || defined(J9ZOS390) */
+#else /* defined(S390) */
 				"enabled");
-#endif /* defined(S390) || defined(J9ZOS390) */
+#endif /* defined(S390) */
 	}
-	
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
 	writer->formatAndOutput(env, 1, "<attribute name=\"maxHeapSize\" value=\"0x%zx\" />", event->maxHeapSize);
 	writer->formatAndOutput(env, 1, "<attribute name=\"initialHeapSize\" value=\"0x%zx\" />", event->initialHeapSize);
@@ -333,18 +329,7 @@ MM_VerboseHandlerOutput::handleInitializedNoLock(J9HookInterface** hook, uintptr
 	writeVmArgs(env);
 
 	writer->formatAndOutput(env, 0, "</initialized>\n");
-	writer->formatAndOutput(env, 0, "!@: buffer\n");
-	omrtty_printf("!@: handleInitializedNoLock flush start\n");
 	writer->flush(env);
-	omrtty_printf("!@: handleInitializedNoLock flush end\n");
-	omrtty_printf("!@: handleInitializedNoLock end eventNum:%d \n",eventNum);
-}
-// !@!@ Lock
-void
-MM_VerboseHandlerOutput::handleInitialized(J9HookInterface** hook, uintptr_t eventNum, void* eventData)
-{
-	enterAtomicReportingBlock();
-	handleInitializedNoLock(hook, eventNum, eventData);
 	exitAtomicReportingBlock();
 }
 

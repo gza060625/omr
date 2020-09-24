@@ -48,7 +48,7 @@ class MM_VerboseManager : public MM_VerboseManagerBase
 private:
 
 protected:
-// !@
+
 	MM_VerboseWriterChain* _writerChain; /**< The chain of writers for new verbose */
 	MM_VerboseHandlerOutput *_verboseHandlerOutput;  /**< New verbose format output handler */
 

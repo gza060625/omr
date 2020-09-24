@@ -355,8 +355,6 @@ public:
 	 * @param eventData hook specific event data.
 	 */
 	virtual void handleInitialized(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
-	// Document?
-	virtual void handleInitializedNoLock(J9HookInterface** hook, uintptr_t eventNum, void* eventData);
 
 	/**
 	 * Write verbose stanza for a cycle start event.

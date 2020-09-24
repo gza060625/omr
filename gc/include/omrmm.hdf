@@ -230,40 +230,6 @@ typedef uintptr_t (*condYieldFromGCFunctionPtr) (OMR_VMThread *omrVMThread, uint
 	</event>
 
 	<event>
-		<name>J9HOOK_MM_OMR_INITIALIZED_NOLOCK</name>
-		<description>
-			Triggered as soon as starting a new file
-		</description>
-		<struct>MM_InitializedEvent_NoLock</struct>
-		<data type="struct OMR_VMThread*" name="currentThread" description="current thread" />
-		<data type="uint64_t" name="timestamp" description="time of event" />
-		<data type="const char*" name="gcPolicy" description="-Xgcpolicy value" />
-		<data type="uintptr_t" name="unused" description="UNUSED" />
-		<data type="uintptr_t" name="maxHeapSize" description="-Xmx value" />
-		<data type="uintptr_t" name="initialHeapSize" description="-Xms value" />
-		<data type="uint64_t" name="physicalMemory" description="the total amount of physical memory" />
-		<data type="uintptr_t" name="numCPUs" description="number of CPUs on the system" />
-		<data type="uintptr_t" name="gcThreads" description="number of GC threads" />
-		<data type="const char*" name="architecture" description="machine architecture" />
-		<data type="const char*" name="os" description="operating system" />
-		<data type="const char*" name="osVersion" description="operating system version" />
-		<data type="uintptr_t" name="compressedPointersShift" description="compressed pointers shift amount" />
-		<data type="uintptr_t" name="beat" description="Metronome beat" />
-		<data type="uintptr_t" name="timeWindow" description="Metronome time window" />
-		<data type="uintptr_t" name="targetUtilization" description="Metronome target utilization" />
-		<data type="uintptr_t" name="gcTrigger" description="Metronome GC trigger" />
-		<data type="uintptr_t" name="headRoom" description="Metronome GC trigger headroom" />
-		<data type="uintptr_t" name="heapPageSize" description="allocated page size of the heap" />
-		<data type="const char*" name="heapPageType" description="describes pages used to allocate the heap" />
-		<data type="uintptr_t" name="heapRequestedPageSize" description="default operating system page size, or user defined page size from -Xlp" />
-		<data type="const char*" name="heapRequestedPageType" description="default operating system page type, or user defined page type from -Xlp" />
-		<data type="uintptr_t" name="numaNodes" description="number of NUMA nodes to be used by the GC (currently only supported in VLHGC)" />
-		<data type="uintptr_t" name="regionSize" description="heap region size" />
-		<data type="uintptr_t" name="regionCount" description="total heap region count" />
-		<data type="uintptr_t" name="arrayletLeafSize" description="arraylet leaf size" />
-	</event>
-
-	<event>
 		<name>J9HOOK_MM_OMR_VERBOSE_GC_OUTPUT</name>
 		<description>
 			Triggered when verbose GC outputs a string

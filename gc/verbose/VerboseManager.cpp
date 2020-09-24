@@ -266,7 +266,7 @@ MM_VerboseManager::configureVerboseGC(OMR_VM *omrVM, char *filename, uintptr_t f
 		writer->reconfigure(&env, filename, fileCount, iterations);
 	} else {
 
-// !@
+
 		writer = createWriter(&env, type, filename, fileCount, iterations);
 
 		if(NULL == writer) {
@@ -292,7 +292,7 @@ MM_VerboseManager::createWriter(MM_EnvironmentBase *env, WriterType type, char *
 	case VERBOSE_WRITER_HOOK:
 		writer = MM_VerboseWriterHook::newInstance(env);
 		break;
-		// !@
+
 	case VERBOSE_WRITER_FILE_LOGGING_SYNCHRONOUS:
 		writer = MM_VerboseWriterFileLoggingSynchronous::newInstance(env, this, filename, fileCount, iterations);
 		if (NULL == writer) {

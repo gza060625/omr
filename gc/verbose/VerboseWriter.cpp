@@ -40,7 +40,6 @@ MM_VerboseWriter::MM_VerboseWriter(WriterType type)
 	,_nextWriter(NULL)
 	,_header(NULL)
 	,_footer(NULL)
-	,_initial(NULL)
 	,_type(type)
 	,_isActive(false)
 {}
@@ -55,12 +54,6 @@ const char*
 MM_VerboseWriter::getFooter(MM_EnvironmentBase *env)
 {
 	return _footer;
-}
-
-const char*
-MM_VerboseWriter::getInitial(MM_EnvironmentBase *env)
-{
-	return _initial;
 }
 
 MM_VerboseWriter*
@@ -90,7 +83,7 @@ MM_VerboseWriter::kill(MM_EnvironmentBase* env) {
 	tearDown(env);
 	env->getExtensions()->getForge()->free(this);
 }
-//Tag
+
 bool
 MM_VerboseWriter::initialize(MM_EnvironmentBase* env)
 {
