@@ -1068,6 +1068,7 @@ verboseHandlerInitialized(J9HookInterface** hook, uintptr_t eventNum, void* even
 {
 	((MM_VerboseHandlerOutput*)userData)->handleInitialized(hook, eventNum, eventData);
 }
+
 void
 verboseHandlerHeapResize(J9HookInterface** hook, uintptr_t eventNum, void* eventData, void* userData)
 {
