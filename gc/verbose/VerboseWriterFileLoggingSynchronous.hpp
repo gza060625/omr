@@ -54,7 +54,7 @@ protected:
 
 private:
 	virtual void tearDown(MM_EnvironmentBase *env);
-	void print(MM_EnvironmentBase *env);
+	void printInitialized(MM_EnvironmentBase *env);
 
 	bool openFile(MM_EnvironmentBase *env);
 	void closeFile(MM_EnvironmentBase *env);

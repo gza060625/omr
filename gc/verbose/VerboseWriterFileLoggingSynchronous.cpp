@@ -88,24 +88,18 @@ MM_VerboseWriterFileLoggingSynchronous::tearDown(MM_EnvironmentBase *env)
  * print
  */
 void
-MM_VerboseWriterFileLoggingSynchronous::print(MM_EnvironmentBase *env)
+MM_VerboseWriterFileLoggingSynchronous::printInitialized(MM_EnvironmentBase *env)
 {
-	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());	
 	MM_GCExtensionsBase* extensions = env->getExtensions();
-	// const char* temp="!@: MM_VerboseWriterFileLoggingSynchronous::openFile\n\n";
-	// omrfile_printf(_logFileDescriptor, temp);
-
-	MM_VerboseWriterChain* writer = _manager->getWriterChain();
 	MM_GCExtensions *extensionsExt = MM_GCExtensions::getExtensions(env);
+	MM_VerboseWriterChain* writer = _manager->getWriterChain();
+	MM_VerboseHandlerOutput *_verboseHandlerOutput = MM_VerboseHandlerOutput::newInstance(env, _manager);	
 
-	UDATA numaNodes = extensions->_numaManager.getAffinityLeaderCount();
-
-	// omrfile_printf(_logFileDescriptor, "!@: INIT Start\n");
-	
+	UDATA numaNodes = extensions->_numaManager.getAffinityLeaderCount();	
 
 	_manager->setInitializedTime(omrtime_hires_clock());
+
 	char tagTemplate[200];
-	MM_VerboseHandlerOutput *_verboseHandlerOutput = MM_VerboseHandlerOutput::newInstance(env, _manager);
 	_verboseHandlerOutput->getTagTemplate(tagTemplate, sizeof(tagTemplate), _manager->getIdAndIncrement(), omrtime_current_time_millis());
 
 	writer->formatAndOutput(env, 0, "<initialized %s>", tagTemplate);
@@ -121,8 +115,7 @@ MM_VerboseWriterFileLoggingSynchronous::print(MM_EnvironmentBase *env)
 #else /* defined(S390) || defined(J9ZOS390) */
 				"enabled");
 #endif /* defined(S390) || defined(J9ZOS390) */
-	}
-	
+	}	
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
 
 	writer->formatAndOutput(env, 1, "<attribute name=\"maxHeapSize\" value=\"0x%zx\" />", extensions->memoryMax);
@@ -175,11 +168,9 @@ MM_VerboseWriterFileLoggingSynchronous::print(MM_EnvironmentBase *env)
 	writer->formatAndOutput(env, 2, "<attribute name=\"osVersion\" value=\"%s\" />", omrsysinfo_get_OS_version());
 	writer->formatAndOutput(env, 1, "</system>");
 
-	_manager->handleFileOpenSuccess(env);
+	_manager->writeVmArgs(env);
 	
 	writer->formatAndOutput(env, 0, "</initialized>");
-	
-	// omrfile_printf(_logFileDescriptor, "\n!@: INIT End\n");
 }
 
 /**
@@ -223,6 +214,7 @@ MM_VerboseWriterFileLoggingSynchronous::openFile(MM_EnvironmentBase *env)
 	extensions->getForge()->free(filenameToOpen);
 
 	omrfile_printf(_logFileDescriptor, getHeader(env), version);
+	printInitialized(env);
 
 	return true;
 }
