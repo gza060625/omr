@@ -90,6 +90,7 @@ MM_VerboseWriterFileLoggingSynchronous::tearDown(MM_EnvironmentBase *env)
 void
 MM_VerboseWriterFileLoggingSynchronous::printInitialized(MM_EnvironmentBase *env)
 {
+	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 	MM_GCExtensionsBase* extensions = env->getExtensions();
 	MM_GCExtensions *extensionsExt = MM_GCExtensions::getExtensions(env);
 	MM_VerboseWriterChain* writer = _manager->getWriterChain();
