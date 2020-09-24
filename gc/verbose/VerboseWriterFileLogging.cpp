@@ -263,7 +263,6 @@ MM_VerboseWriterFileLogging::findInitialFile(MM_EnvironmentBase *env)
 		return 0;
 	}
 
-
 	for (uintptr_t currentFile = 0; currentFile < _numFiles; currentFile++) {
 		char *filenameToOpen = expandFilename(env, currentFile);
 		if (NULL == filenameToOpen) {
@@ -299,7 +298,6 @@ MM_VerboseWriterFileLogging::closeStream(MM_EnvironmentBase *env)
  * Flushes the verbose buffer to the output stream.
  * Also cycles the output files if necessary.
  */
-
 void
 MM_VerboseWriterFileLogging::endOfCycle(MM_EnvironmentBase *env)
 {

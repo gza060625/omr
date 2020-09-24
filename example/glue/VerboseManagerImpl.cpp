@@ -57,7 +57,6 @@ MM_VerboseManagerImpl::tearDown(MM_EnvironmentBase *env)
 	omrmem_free_memory(this->filename);
 }
 
-
 bool
 MM_VerboseManagerImpl::configureVerboseGC(OMR_VM *omrVM, char *filename, uintptr_t fileCount, uintptr_t iterations)
 {
