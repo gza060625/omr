@@ -270,13 +270,13 @@ MM_VerboseHandlerOutput::handleInitialized(J9HookInterface** hook, uintptr_t eve
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
 	if (_extensions->isConcurrentScavengerEnabled()) {
 		writer->formatAndOutput(env, 1, "<attribute name=\"concurrentScavenger\" value=\"%s\" />",
-#if defined(S390)
+#if defined(S390) || defined(J9ZOS390)
 				_extensions->concurrentScavengerHWSupport ?
 				"enabled, with H/W assistance" :
 				"enabled, without H/W assistance");
-#else /* defined(S390) */
+#else /* defined(S390) || defined(J9ZOS390) */
 				"enabled");
-#endif /* defined(S390) */
+#endif /* defined(S390) || defined(J9ZOS390) */
 	}
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
 	writer->formatAndOutput(env, 1, "<attribute name=\"maxHeapSize\" value=\"0x%zx\" />", event->maxHeapSize);
@@ -329,70 +329,6 @@ MM_VerboseHandlerOutput::handleInitialized(J9HookInterface** hook, uintptr_t eve
 	writeVmArgs(env);
 
 	writer->formatAndOutput(env, 0, "</initialized>\n");
-	writer->flush(env);
-	exitAtomicReportingBlock();
-}
-
-void
-MM_VerboseHandlerOutput::handleCycleStart(J9HookInterface** hook, uintptr_t eventNum, void* eventData)
-{
-	MM_GCCycleStartEvent* event = (MM_GCCycleStartEvent*)eventData;
-	MM_VerboseWriterChain* writer = _manager->getWriterChain();
-	MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(event->omrVMThread);
-	OMRPORT_ACCESS_FROM_ENVIRONMENT(env);
-
-	uint64_t currentTime = event->timestamp;
-	uint64_t previousTime = 0;
-
-	switch (env->_cycleState->_type) {
-	case OMR_GC_CYCLE_TYPE_DEFAULT:
-		break;
-	case OMR_GC_CYCLE_TYPE_GLOBAL:
-		previousTime = _manager->getLastGlobalGCTime();
-		_manager->setLastGlobalGCTime(currentTime);
-		break;
-	case OMR_GC_CYCLE_TYPE_SCAVENGE:
-		previousTime = _manager->getLastLocalGCTime();
-		_manager->setLastLocalGCTime(currentTime);
-		break;
-	case OMR_GC_CYCLE_TYPE_VLHGC_PARTIAL_GARBAGE_COLLECT:
-		previousTime = _manager->getLastPartialGCTime();
-		_manager->setLastPartialGCTime(currentTime);
-		break;
-	case OMR_GC_CYCLE_TYPE_VLHGC_GLOBAL_MARK_PHASE:
-		previousTime = _manager->getLastGlobalMarkGCTime();
-		_manager->setLastGlobalMarkGCTime(currentTime);
-		break;
-	case OMR_GC_CYCLE_TYPE_VLHGC_GLOBAL_GARBAGE_COLLECT:
-		previousTime = _manager->getLastBalancedGlobalGCTime();
-		_manager->setLastBalancedGlobalGCTime(currentTime);
-		break;
-	}
-
-	if (0 == previousTime) {
-		previousTime = _manager->getInitializedTime();
-	}
-
-	uint64_t deltaTime = 0;
-	bool deltaTimeSuccess = getTimeDeltaInMicroSeconds(&deltaTime, previousTime, currentTime);
-
-	const char* cycleType = getCurrentCycleType(env);
-	char tagTemplate[200];
-	uintptr_t id = _manager->getIdAndIncrement();
-	env->_cycleState->_verboseContextID = id;
-	getTagTemplate(tagTemplate, sizeof(tagTemplate), id, cycleType, 0 /* Needs context id */, omrtime_current_time_millis());
-
-	enterAtomicReportingBlock();
-	if (!deltaTimeSuccess) {
-		writer->formatAndOutput(env, 0, "<warning details=\"clock error detected, following timing may be inaccurate\" />");
-	}
-	if(hasCycleStartInnerStanzas()) {
-		writer->formatAndOutput(env, 0, "<cycle-start %s intervalms=\"%llu.%03llu\">", tagTemplate, deltaTime / 1000 , deltaTime % 1000);
-		handleCycleStartInnerStanzas(hook, eventNum, eventData, 1);
-		writer->formatAndOutput(env, 0, "</cycle-start>");
-	} else {
-		writer->formatAndOutput(env, 0, "<cycle-start %s intervalms=\"%llu.%03llu\" />", tagTemplate, deltaTime / 1000 , deltaTime % 1000);
-	}
 	writer->flush(env);
 	exitAtomicReportingBlock();
 }
