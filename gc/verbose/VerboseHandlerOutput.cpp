@@ -254,6 +254,7 @@ MM_VerboseHandlerOutput::handleInitializedRegion(J9HookInterface** hook, uintptr
 void
 MM_VerboseHandlerOutput::handleInitialized(J9HookInterface** hook, uintptr_t eventNum, void* eventData)
 {
+	Assert_MM_unreachable();
 	MM_InitializedEvent* event = (MM_InitializedEvent*)eventData;
 	MM_VerboseWriterChain* writer = _manager->getWriterChain();
 	MM_EnvironmentBase* env = MM_EnvironmentBase::getEnvironment(event->currentThread);
