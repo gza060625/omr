@@ -96,7 +96,7 @@ MM_VerboseWriterFileLoggingSynchronous::printInitialized(MM_EnvironmentBase *env
 	MM_VerboseWriterChain* writer = _manager->getWriterChain();
 	MM_VerboseHandlerOutput *_verboseHandlerOutput = MM_VerboseHandlerOutput::newInstance(env, _manager);	
 
-	UDATA numaNodes = extensions->_numaManager.getAffinityLeaderCount();	
+	UDATA numaNodes = extensionsExt->_numaManager.getAffinityLeaderCount();	
 
 	_manager->setInitializedTime(omrtime_hires_clock());
 
