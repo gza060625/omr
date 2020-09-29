@@ -187,8 +187,9 @@ heapCreationHelper(OMR_VM *omrVM, MM_StartupManager *startupManager, bool create
 			goto done;
 		}
 		
-		extensions->verboseGCManager->configureVerboseGC(omrVM, startupManager->getVerboseFileName(), 1, 0);
 		extensions->verboseGCManager->enableVerboseGC();
+		extensions->verboseGCManager->configureVerboseGC(omrVM, startupManager->getVerboseFileName(), 1, 0);
+		// extensions->verboseGCManager->enableVerboseGC();
 		extensions->verboseGCManager->setInitializedTime(omrtime_hires_clock());
 	}
 
