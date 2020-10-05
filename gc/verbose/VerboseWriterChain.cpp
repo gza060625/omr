@@ -69,7 +69,7 @@ MM_VerboseWriterChain::formatAndOutputV(MM_EnvironmentBase *env, uintptr_t inden
 	_buffer->vprintf(env, format, args);
 	_buffer->add(env, "\n");
 }
-
+// !@!@ formatAndOutput
 void
 MM_VerboseWriterChain::formatAndOutput(MM_EnvironmentBase *env, uintptr_t indent, const char *format, ...)
 {

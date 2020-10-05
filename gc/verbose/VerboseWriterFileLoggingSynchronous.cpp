@@ -35,7 +35,12 @@
 #include "ObjectAccessBarrier.hpp"
 #include "VerboseWriterChain.hpp"
 
+#include "VerboseBuffer.hpp"
+#include "VerboseWriterChain.hpp"
+
 class MM_VerboseHandlerOutput;
+class MM_VerboseBuffer;
+class MM_VerboseWriterChain;
 
 MM_VerboseWriterFileLoggingSynchronous::MM_VerboseWriterFileLoggingSynchronous(MM_EnvironmentBase *env, MM_VerboseManager *manager)
 	:MM_VerboseWriterFileLogging(env, manager, VERBOSE_WRITER_FILE_LOGGING_SYNCHRONOUS)
@@ -85,30 +90,31 @@ MM_VerboseWriterFileLoggingSynchronous::tearDown(MM_EnvironmentBase *env)
 }
 
 /**
- * print
+ * !@!@ printInitialized
  */
 void
 MM_VerboseWriterFileLoggingSynchronous::printInitialized(MM_EnvironmentBase *env)
 {
-	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+
 	MM_GCExtensionsBase* extensions = env->getExtensions();
 	MM_GCExtensions *extensionsExt = MM_GCExtensions::getExtensions(env);
-	MM_VerboseWriterChain* writer = _manager->getWriterChain();
+	// MM_VerboseWriterChain* writer = _manager->getWriterChain();
+	MM_VerboseWriterChain* _writerChain = MM_VerboseWriterChain::newInstance(env);	
 	MM_VerboseHandlerOutput *_verboseHandlerOutput = MM_VerboseHandlerOutput::newInstance(env, _manager);	
-
-	UDATA numaNodes = extensionsExt->_numaManager.getAffinityLeaderCount();	
-
-	_manager->setInitializedTime(omrtime_hires_clock());
-
+	UDATA numaNodes = extensionsExt->_numaManager.getAffinityLeaderCount();
 	char tagTemplate[200];
+	
+	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
+	_writerChain->addWriter(this);
+	_manager->setInitializedTime(omrtime_hires_clock());	
 	_verboseHandlerOutput->getTagTemplate(tagTemplate, sizeof(tagTemplate), _manager->getIdAndIncrement(), omrtime_current_time_millis());
 
-	writer->formatAndOutput(env, 0, "<initialized %s>", tagTemplate);
-	writer->formatAndOutput(env, 1, "<attribute name=\"gcPolicy\" value=\"%s\" />", extensions->gcModeString);
+	_writerChain->formatAndOutput(env, 0, "<initialized %s>", tagTemplate);
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"gcPolicy\" value=\"%s\" />", extensions->gcModeString);
 
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
 	if (extensions->isConcurrentScavengerEnabled()) {
-		writer->formatAndOutput(env, 1, "<attribute name=\"concurrentScavenger\" value=\"%s\" />",
+		_writerChain->formatAndOutput(env, 1, "<attribute name=\"concurrentScavenger\" value=\"%s\" />",
 #if defined(S390) || defined(J9ZOS390)
 				extensions->concurrentScavengerHWSupport ?
 				"enabled, with H/W assistance" :
@@ -119,59 +125,61 @@ MM_VerboseWriterFileLoggingSynchronous::printInitialized(MM_EnvironmentBase *env
 	}	
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
 
-	writer->formatAndOutput(env, 1, "<attribute name=\"maxHeapSize\" value=\"0x%zx\" />", extensions->memoryMax);
-	writer->formatAndOutput(env, 1, "<attribute name=\"initialHeapSize\" value=\"0x%zx\" />", extensions->initialMemorySize);
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"maxHeapSize\" value=\"0x%zx\" />", extensions->memoryMax);
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"initialHeapSize\" value=\"0x%zx\" />", extensions->initialMemorySize);
 
 #if defined(OMR_GC_COMPRESSED_POINTERS)
 	if (env->compressObjectReferences()) {
-		writer->formatAndOutput(env, 1, "<attribute name=\"compressedRefs\" value=\"true\" />");
-		writer->formatAndOutput(env, 1, "<attribute name=\"compressedRefsDisplacement\" value=\"0x%zx\" />", 0);
-		writer->formatAndOutput(env, 1, "<attribute name=\"compressedRefsShift\" value=\"0x%zx\" />", extensionsExt->accessBarrier->compressedPointersShift());
+		_writerChain->formatAndOutput(env, 1, "<attribute name=\"compressedRefs\" value=\"true\" />");
+		_writerChain->formatAndOutput(env, 1, "<attribute name=\"compressedRefsDisplacement\" value=\"0x%zx\" />", 0);
+		_writerChain->formatAndOutput(env, 1, "<attribute name=\"compressedRefsShift\" value=\"0x%zx\" />", extensionsExt->accessBarrier->compressedPointersShift());
 	} else
 #endif /* defined(OMR_GC_COMPRESSED_POINTERS) */
 	{
-		writer->formatAndOutput(env, 1, "<attribute name=\"compressedRefs\" value=\"false\" />");
+		_writerChain->formatAndOutput(env, 1, "<attribute name=\"compressedRefs\" value=\"false\" />");
 	}
 
-	writer->formatAndOutput(env, 1, "<attribute name=\"pageSize\" value=\"0x%zx\" />", extensions->heap->getPageSize());
-	writer->formatAndOutput(env, 1, "<attribute name=\"pageType\" value=\"%s\" />", getPageTypeString(extensions->heap->getPageFlags()));
-	writer->formatAndOutput(env, 1, "<attribute name=\"requestedPageSize\" value=\"0x%zx\" />", extensions->requestedPageSize);
-	writer->formatAndOutput(env, 1, "<attribute name=\"requestedPageType\" value=\"%s\" />", getPageTypeString(extensions->requestedPageFlags));
-	writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads\" value=\"%zu\" />", extensions->gcThreadCount);
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"pageSize\" value=\"0x%zx\" />", extensions->heap->getPageSize());
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"pageType\" value=\"%s\" />", getPageTypeString(extensions->heap->getPageFlags()));
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"requestedPageSize\" value=\"0x%zx\" />", extensions->requestedPageSize);
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"requestedPageType\" value=\"%s\" />", getPageTypeString(extensions->requestedPageFlags));
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"gcthreads\" value=\"%zu\" />", extensions->gcThreadCount);
 
 	if (gc_policy_gencon == extensions->configurationOptions._gcPolicy) {
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
 		if (extensions->isConcurrentScavengerEnabled()) {
-			writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads Concurrent Scavenger\" value=\"%zu\" />", extensions->concurrentScavengerBackgroundThreads);
+			_writerChain->formatAndOutput(env, 1, "<attribute name=\"gcthreads Concurrent Scavenger\" value=\"%zu\" />", extensions->concurrentScavengerBackgroundThreads);
 		}
 #endif /* OMR_GC_CONCURRENT_SCAVENGER */
 #if defined(OMR_GC_MODRON_CONCURRENT_MARK)
 		if (extensions->isConcurrentMarkEnabled()) {
-			writer->formatAndOutput(env, 1, "<attribute name=\"gcthreads Concurrent Mark\" value=\"%zu\" />", extensions->concurrentBackground);
+			_writerChain->formatAndOutput(env, 1, "<attribute name=\"gcthreads Concurrent Mark\" value=\"%zu\" />", extensions->concurrentBackground);
 		}
 #endif /* OMR_GC_MODRON_CONCURRENT_MARK */
 	}	
 
-	writer->formatAndOutput(env, 1, "<attribute name=\"packetListSplit\" value=\"%zu\" />", extensions->packetListSplit);
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"packetListSplit\" value=\"%zu\" />", extensions->packetListSplit);
 #if defined(OMR_GC_MODRON_SCAVENGER)
-	writer->formatAndOutput(env, 1, "<attribute name=\"cacheListSplit\" value=\"%zu\" />", extensions->cacheListSplit);
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"cacheListSplit\" value=\"%zu\" />", extensions->cacheListSplit);
 #endif /* OMR_GC_MODRON_SCAVENGER */
-	writer->formatAndOutput(env, 1, "<attribute name=\"splitFreeListSplitAmount\" value=\"%zu\" />", extensions->splitFreeListSplitAmount);
-	writer->formatAndOutput(env, 1, "<attribute name=\"numaNodes\" value=\"%zu\" />", numaNodes);
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"splitFreeListSplitAmount\" value=\"%zu\" />", extensions->splitFreeListSplitAmount);
+	_writerChain->formatAndOutput(env, 1, "<attribute name=\"numaNodes\" value=\"%zu\" />", numaNodes);
 
 	// handleInitializedInnerStanzas(hook, eventNum, eventData);
 
-	writer->formatAndOutput(env, 1, "<system>");
-	writer->formatAndOutput(env, 2, "<attribute name=\"physicalMemory\" value=\"%llu\" />", omrsysinfo_get_physical_memory());
-	writer->formatAndOutput(env, 2, "<attribute name=\"numCPUs\" value=\"%zu\" />", omrsysinfo_get_number_CPUs_by_type(OMRPORT_CPU_ONLINE));
-	writer->formatAndOutput(env, 2, "<attribute name=\"architecture\" value=\"%s\" />", omrsysinfo_get_CPU_architecture());
-	writer->formatAndOutput(env, 2, "<attribute name=\"os\" value=\"%s\" />", omrsysinfo_get_OS_type());
-	writer->formatAndOutput(env, 2, "<attribute name=\"osVersion\" value=\"%s\" />", omrsysinfo_get_OS_version());
-	writer->formatAndOutput(env, 1, "</system>");
+	_writerChain->formatAndOutput(env, 1, "<system>");
+	_writerChain->formatAndOutput(env, 2, "<attribute name=\"physicalMemory\" value=\"%llu\" />", omrsysinfo_get_physical_memory());
+	_writerChain->formatAndOutput(env, 2, "<attribute name=\"numCPUs\" value=\"%zu\" />", omrsysinfo_get_number_CPUs_by_type(OMRPORT_CPU_ONLINE));
+	_writerChain->formatAndOutput(env, 2, "<attribute name=\"architecture\" value=\"%s\" />", omrsysinfo_get_CPU_architecture());
+	_writerChain->formatAndOutput(env, 2, "<attribute name=\"os\" value=\"%s\" />", omrsysinfo_get_OS_type());
+	_writerChain->formatAndOutput(env, 2, "<attribute name=\"osVersion\" value=\"%s\" />", omrsysinfo_get_OS_version());
+	_writerChain->formatAndOutput(env, 1, "</system>");
 
-	_manager->writeVmArgs(env);
+	// _manager->writeVmArgs(env);
+	_manager->writeVmArgsWrapper(env,_writerChain);
 	
-	writer->formatAndOutput(env, 0, "</initialized>");
+	_writerChain->formatAndOutput(env, 0, "</initialized>");
+	_writerChain->flush(env);
 }
 
 /**

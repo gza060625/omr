@@ -29,6 +29,8 @@
 #include "VerboseManagerBase.hpp"
 #include "VerboseWriter.hpp"
 
+#include "ModronAssertions.h"
+
 class MM_EnvironmentBase;
 class MM_VerboseHandlerOutput;
 class MM_VerboseWriterChain;
@@ -120,6 +122,7 @@ public:
 	
 	virtual void handleFileOpenError(MM_EnvironmentBase *env, char *fileName) {}
 	virtual void writeVmArgs(MM_EnvironmentBase *env) {}
+	virtual void writeVmArgsWrapper(MM_EnvironmentBase* env,MM_VerboseWriterChain *writer) {Assert_MM_unreachable();}
 
 	MM_VerboseManager(OMR_VM *omrVM)
 		: MM_VerboseManagerBase(omrVM)
