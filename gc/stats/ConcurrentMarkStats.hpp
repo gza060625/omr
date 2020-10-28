@@ -20,29 +20,14 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-/**
- * @file
- * @ingroup GC_Stats
- */
-
 #include "CardCleaningStats.hpp"
+#include "MarkStats.hpp"
 
-void
-MM_CardCleaningStats::clear()
+class MM_ConcurrentMarkStats : public MM_MarkStats
 {
-	_cardCleaningTime = 0;
-	_cardsCleaned = 0;
-
-	_objectsCardClean = 0;
-	_bytesCardClean = 0;
-}
-
-void
-MM_CardCleaningStats::merge(MM_CardCleaningStats *statsToMerge)
-{
-	_cardCleaningTime += statsToMerge->_cardCleaningTime;
-	_cardsCleaned += statsToMerge->_cardsCleaned;
-
-	_objectsCardClean += statsToMerge->_objectsCardClean;
-	_bytesCardClean += statsToMerge->_bytesCardClean;
-}
+   /* data members */
+private:
+protected:
+public:
+    MM_CardCleaningStats _cardCleaningStats;
+};
