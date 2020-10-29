@@ -42,7 +42,4 @@ MM_CardCleaningStats::merge(MM_CardCleaningStats *statsToMerge)
 {
 	_cardCleaningTime += statsToMerge->_cardCleaningTime;
 	_cardsCleaned += statsToMerge->_cardsCleaned;
-
-	_objectsCardClean += statsToMerge->_objectsCardClean;
-	_bytesCardClean += statsToMerge->_bytesCardClean;
 }

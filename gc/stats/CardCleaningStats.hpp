@@ -35,8 +35,8 @@ public:
 	uint64_t _cardCleaningTime; /**< Time spent cleaning cards in hi-res clock resolution. */
 	uintptr_t _cardsCleaned; /**< The number of cards cleaned */
 
-	uintptr_t _objectsCardClean;	/**< Objects scanned through card cleaning */
-	uintptr_t _bytesCardClean;		/**< Bytes scanned through card cleaning */
+	uintptr_t _objectsCardClean; /**< Objects scanned through card cleaning */
+	uintptr_t _bytesCardClean; /**< Bytes scanned through card cleaning */
 	
 /* Function Members */
 public:
