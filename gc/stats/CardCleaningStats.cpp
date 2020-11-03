@@ -32,9 +32,6 @@ MM_CardCleaningStats::clear()
 {
 	_cardCleaningTime = 0;
 	_cardsCleaned = 0;
-
-	_objectsCardClean = 0;
-	_bytesCardClean = 0;
 }
 
 void
