@@ -36,6 +36,12 @@ MM_MarkStats::clear()
 	_objectsScanned = 0;
 	_bytesScanned = 0;
 
+	_ownableSynchronizerSurvived = 0;
+	_ownableSynchronizerCleared = 0;
+
+	_stringConstantsCleared = 0;
+	_stringConstantsCandidates = 0;
+
 #if defined(J9MODRON_TGC_PARALLEL_STATISTICS)
 	_syncStallCount = 0;
 	_syncStallTime = 0;
@@ -52,6 +58,12 @@ MM_MarkStats::merge(MM_MarkStats *statsToMerge)
 	_objectsMarked += statsToMerge->_objectsMarked;
 	_objectsScanned += statsToMerge->_objectsScanned;
 	_bytesScanned += statsToMerge->_bytesScanned;
+
+	_ownableSynchronizerSurvived += statsToMerge->_ownableSynchronizerSurvived;
+	_ownableSynchronizerCleared += statsToMerge->_ownableSynchronizerCleared;
+
+	_stringConstantsCleared += statsToMerge->_stringConstantsCleared;
+	_stringConstantsCandidates += statsToMerge->_stringConstantsCandidates;
 
 #if defined(J9MODRON_TGC_PARALLEL_STATISTICS)
 	/* It may not ever be useful to merge these stats, but do it anyways */

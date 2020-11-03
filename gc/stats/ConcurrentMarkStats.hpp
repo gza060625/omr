@@ -21,13 +21,13 @@
  *******************************************************************************/
 
 #include "CardCleaningStats.hpp"
-#include "MarkStats.hpp"
+// #include "MarkStats.hpp"
 
-class MM_ConcurrentMarkStats : public MM_MarkStats
+class MM_ConcurrentMarkStats
 {
    /* data members */
 private:
 protected:
 public:
-    MM_CardCleaningStats _cardCleaningStats;
+    // MM_CardCleaningStats _cardCleaningStats;
 };

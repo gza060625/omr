@@ -49,6 +49,12 @@ public:
 	uintptr_t _objectsScanned;  /**< The number of objects popped and scanned during marking (e.g., non-base type arrays) */
 	uintptr_t _bytesScanned; /**< The number of bytes scanned by the owning thread (or globally) during marking */
 
+	UDATA _ownableSynchronizerSurvived;  /**< number of ownable synchronizer objects survived this cycle, used only by PMS */
+	UDATA _ownableSynchronizerCleared;  /**< number of ownable synchronizer objects cleared this cycle, used only by GMP */
+
+	UDATA _stringConstantsCleared;  /**< The number of string constants that have been cleared during marking */
+	UDATA _stringConstantsCandidates; /**< The number of string constants that have been visited in string table during marking */
+
 #if defined(J9MODRON_TGC_PARALLEL_STATISTICS)
 	uintptr_t _syncStallCount; /**< The number of times the thread stalled at a sync point */
 	uint64_t _syncStallTime; /**< The time, in hi-res ticks, the thread spent stalled at a sync point */
