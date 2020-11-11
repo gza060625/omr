@@ -68,8 +68,8 @@ public:
 	uintptr_t _scanObjectsNonEden;	/**< Objects scanned in abort recovery in non-Eden (age > 0) space*/
 	uintptr_t _scanBytesNonEden;	/**< Bytes scanned in abort recovery in non-Eden (age > 0) space*/
 
-	uintptr_t _objectsCardClean;	/**< Objects scanned through card cleaning (either for copy, or re-scanned for abort) */
-	uintptr_t _bytesCardClean;		/**< Bytes scanned through card cleaning (either for copy, or re-scanned for abort) */
+	// uintptr_t _objectsCardClean;	/**< Objects scanned through card cleaning (either for copy, or re-scanned for abort) */
+	// uintptr_t _bytesCardClean;		/**< Bytes scanned through card cleaning (either for copy, or re-scanned for abort) */
 
 	bool _scanCacheOverflow;  /**< Flag indicating if a scan cache overflow occurred in last copy forward */
 
@@ -222,8 +222,8 @@ public:
 		_scanObjectsNonEden = 0;
 		_scanBytesNonEden = 0;
 
-		_objectsCardClean = 0;
-		_bytesCardClean = 0;
+		// _objectsCardClean = 0;
+		// _bytesCardClean = 0;
 
 		_scanCacheOverflow = false;
 		_aborted = false;
@@ -315,8 +315,8 @@ public:
 		_scanObjectsNonEden += stats->_scanObjectsNonEden;
 		_scanBytesNonEden += stats->_scanBytesNonEden;
 
-		_objectsCardClean += stats->_objectsCardClean;
-		_bytesCardClean += stats->_bytesCardClean;
+		// _objectsCardClean += stats->_objectsCardClean;
+		// _bytesCardClean += stats->_bytesCardClean;
 
 		_heapExpandedBytes += stats->_heapExpandedBytes;
 		_heapExpandedCount += stats->_heapExpandedCount;
@@ -354,8 +354,8 @@ public:
 		,_copyDiscardBytesNonEden(0)
 		,_scanObjectsNonEden(0)
 		,_scanBytesNonEden(0)
-		,_objectsCardClean(0)
-		,_bytesCardClean(0)
+		// ,_objectsCardClean(0)
+		// ,_bytesCardClean(0)
 		,_scanCacheOverflow(false)
 		,_aborted(false)
 		,_nonEvacuateRegionCount(0)
