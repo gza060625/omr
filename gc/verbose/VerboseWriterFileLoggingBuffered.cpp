@@ -124,7 +124,7 @@ MM_VerboseWriterFileLoggingBuffered::openFile(MM_EnvironmentBase *env, bool prin
 		MM_VerboseBuffer* buffer = MM_VerboseBuffer::newInstance(env, INITIAL_BUFFER_SIZE);
 		if (NULL != buffer) {
 			_manager->getVerboseHandlerOutput()->outputInitializedStanza(env, buffer);
-			outputString(env, buffer->contents());
+			omrfilestream_printf(_logFileStream, buffer->contents());
 			buffer->kill(env);
 		}
 	}
