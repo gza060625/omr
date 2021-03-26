@@ -273,7 +273,8 @@ MM_VerboseHandlerOutput::outputInitializedStanza(MM_EnvironmentBase *env, MM_Ver
 	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
 	Assert_MM_true(_manager->getInitializedTime() != 0);
 	getTagTemplate(tagTemplate, sizeof(tagTemplate), _manager->getIdAndIncrement(), omrtime_current_time_millis());
-
+	// omrfile_printf(_logFileDescriptor, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s");
+	// buffer->formatAndOutput(env, 0, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", tagTemplate);
 	buffer->formatAndOutput(env, 0, "<initialized %s>", tagTemplate);
 	buffer->formatAndOutput(env, 1, "<attribute name=\"gcPolicy\" value=\"%s\" />", _extensions->gcModeString);
 
