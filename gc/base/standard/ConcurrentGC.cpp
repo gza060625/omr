@@ -2974,7 +2974,7 @@ MM_ConcurrentGC::internalPreCollect(MM_EnvironmentBase *env, MM_MemorySubSpace *
 	}
 
 	if (executionModeAtGC > CONCURRENT_OFF && _extensions->debugConcurrentMark) {
-		_stats.printAllocationTaxReport(env->getOmrVM());
+		_stats.printAllocationTaxReport(env->getOmrVM(), env);
 	}
 
 #if defined(OMR_GC_LARGE_OBJECT_AREA)
