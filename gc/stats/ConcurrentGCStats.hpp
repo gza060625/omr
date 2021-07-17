@@ -28,8 +28,13 @@
 #include "modronbase.h"
 #include "omr.h"
 
+#include "mmprivatehook.h"
+#include "modronopt.h"
+#include "ModronAssertions.h"
+
 #include "AtomicOperations.hpp"
 #include "Base.hpp"
+#include "EnvironmentBase.hpp"
 
 class MM_EnvironmentBase;
 
@@ -140,18 +145,27 @@ public:
 		}
 	}	
 	
-	MMINLINE void  printAllocationTaxReport(OMR_VM *omrVM)
+	MMINLINE void  printAllocationTaxReport(OMR_VM *omrVM, MM_EnvironmentBase *env)
 	{
-		OMRPORT_ACCESS_FROM_OMRVM(omrVM);
+		// OMRPORT_ACCESS_FROM_OMRVM(omrVM);
 		
-		omrtty_printf("Concurrent mark analysis: Total Allocations: %zu Tax Paid 0%%: %zu 25%%: %zu 50%%: %zu  75%%: %zu 100%%+: %zu\n", 
+		// omrtty_printf("!@ Concurrent mark analysis: Total Allocations: %zu Tax Paid 0%%: %zu 25%%: %zu 50%%: %zu  75%%: %zu 100%%+: %zu\n", 
+		// 				_allocationsTaxed,
+		// 				_allocationsTaxedAt0,
+		// 				_allocationsTaxedAt25,
+		// 				_allocationsTaxedAt50,
+		// 				_allocationsTaxedAt75,
+		// 				_allocationsTaxedAt100
+		// 			);	
+		Trc_MM_ConcurrentGCStats_printAllocationTaxReport(env->getLanguageVMThread(), 
 						_allocationsTaxed,
 						_allocationsTaxedAt0,
 						_allocationsTaxedAt25,
 						_allocationsTaxedAt50,
 						_allocationsTaxedAt75,
 						_allocationsTaxedAt100
-					);	
+					);
+		Trc_MM_shutdownConHelperThreads_Entry2(env->getLanguageVMThread());
 		
 	}
 	

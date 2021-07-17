@@ -1644,7 +1644,7 @@ public:
 		, concurrentMark(false)
 		, concurrentKickoffEnabled(true)
 		, concurrentSlackFragmentationAdjustmentWeight(0.0)
-		, debugConcurrentMark(false)
+		, debugConcurrentMark(true)
 		, optimizeConcurrentWB(true)
 		, concurrentLevel(8)
 		, concurrentBackground(1)
