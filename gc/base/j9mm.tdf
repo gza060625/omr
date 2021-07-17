@@ -339,15 +339,6 @@ TraceExit=Trc_MM_ConcurrentGC_tuneToHeap_Exit2 Overhead=1 Level=1 Group=concurre
 TraceEntry=Trc_MM_ConcurrentGC_internalPreCollect_Entry Overhead=1 Level=1 Group=concurrent Template="MM_ConcurrentGC_internalPreCollect subspace=%p"
 TraceExit=Trc_MM_ConcurrentGC_internalPreCollect_Exit Overhead=1 Level=1 Group=concurrent Template="MM_ConcurrentGC_internalPreCollect subspace=%p"
 
-TraceEntry=Trc_MM_ConcurrentGC_internalPreCollect_Entry2 Overhead=1 Level=1 Group=concurrent Template="!@ MM_ConcurrentGC_internalPreCollect 2"
-TraceExit=Trc_MM_ConcurrentGC_internalPreCollect_Exit2 Overhead=1 Level=1 Group=concurrent Template="!@ MM_ConcurrentGC_internalPreCollect 2"
-TraceEvent=Trc_MM_ConcurrentGC_internalPreCollect_Entry3 Overhead=1 Level=1 Group=concurrent Template="!@ 3 Tune to heap : Trace target Pass 1=%zu (Trace=%zu Clean=%zu)"
-TraceExit=Trc_MM_ConcurrentGC_internalPreCollect_Exit3 Overhead=1 Level=1 Group=concurrent Template="!@ MM_ConcurrentGC_internalPreCollect 3"
-TraceEntry=Trc_MM_ConcurrentGC_internalPreCollect_Entry4 Overhead=1 Level=1 Group=concurrent Template="!@ MM_ConcurrentGC_internalPreCollect 4"
-TraceExit=Trc_MM_ConcurrentGC_internalPreCollect_Exit4 Overhead=1 Level=1 Group=concurrent Template="!@ MM_ConcurrentGC_internalPreCollect 4"
-TraceEntry=Trc_MM_ConcurrentGC_internalPreCollect_Entry5 Overhead=1 Level=1 Group=concurrent Template="!@ MM_ConcurrentGC_internalPreCollect 5"
-TraceExit=Trc_MM_ConcurrentGC_internalPreCollect_Exit5 Overhead=1 Level=1 Group=concurrent Template="!@ MM_ConcurrentGC_internalPreCollect 5"
-
 TraceEntry=Trc_MM_ConcurrentGC_internalPostCollect_Entry Overhead=1 Level=1 Group=concurrent Template="MM_ConcurrentGC_internalPostCollect subspace=%p"
 TraceExit=Trc_MM_ConcurrentGC_internalPostCollect_Exit Overhead=1 Level=1 Group=concurrent Template="MM_ConcurrentGC_internalPostCollect subspace=%p"
 
